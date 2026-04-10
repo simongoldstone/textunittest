@@ -1,0 +1,4 @@
+Welcome to Sample App
+Version: 1.2.3
+Status: OK
+Copyright 2026 TextUnitTest

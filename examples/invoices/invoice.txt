@@ -1,0 +1,8 @@
+Welcome to Example Corp
+Invoice Number: INV-1001
+Customer: Acme Industries
+Version: 2026.1
+Line Item: Subscription
+Line Item: Support
+Total: GBP 1200
+Copyright 2026 Example Corp
