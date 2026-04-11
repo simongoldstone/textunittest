@@ -10,6 +10,7 @@ This document describes **wildcard**, **fuzzy**, **format**, and **line-scoped**
 | `Fuzzy Require:` | Line-based Levenshtein similarity with sliding windows |
 | `Tolerance:` | 50–100% similarity for the following fuzzy rules (default 85% if omitted) |
 | `Require Format:` | Dates, phones, email, UUID, masks, etc., without regex |
+| `Reject Format:` | That format must **not** appear anywhere in the scope |
 | `On Line:` | Narrow scope to one 1-based file line (pairs with format or other assertions) |
 | `Between Lines:` | Narrow scope to an inclusive 1-based line range in the file |
 
@@ -36,6 +37,10 @@ Built-in forms include:
 - `Mask(INV-9999-AAA)` — custom mask with the same symbol table as phone.
 
 Failures include **Line:** (1-based in the target file at the start of the narrowed scope) and a readable message.
+
+## Reject Format (`Reject Format:`)
+
+Uses the **same** built-in names as **`Require Format:`**, but the test **fails** if any line in the scope contains a valid match (for example no email addresses allowed in an export). Pair with **`On Line:`** or **`Between Lines:`** to limit the checked region.
 
 ## Line-scoped formats
 

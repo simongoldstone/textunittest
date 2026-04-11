@@ -69,6 +69,36 @@ export function fullFileLinesRange(
   return { start: first.start, end: last.end };
 }
 
+/** Text of one full-file line (no trailing newline), or null if the line does not exist. */
+export function fullFileLineText(content: string, lineOneBased: number): string | null {
+  const r = fullFileLineRange(content, lineOneBased);
+  if (!r) {
+    return null;
+  }
+  return content.slice(r.start, r.end);
+}
+
+/** True if the 1-based full-file line overlaps the scope window (any character in common). */
+export function lineOverlapsWindow(
+  content: string,
+  lineOneBased: number,
+  win: ScopeWindow,
+): boolean {
+  const r = fullFileLineRange(content, lineOneBased);
+  if (!r) {
+    return false;
+  }
+  return Math.max(win.start, r.start) < Math.min(win.end, r.end);
+}
+
+/** Split scope into lines (newline-separated); last line may be unterminated. */
+export function scopeLines(scope: string): string[] {
+  if (scope.length === 0) {
+    return [""];
+  }
+  return scope.split(/\r?\n/);
+}
+
 function intersectWithRange(content: string, win: ScopeWindow, range: { start: number; end: number }): ScopeWindow | null {
   const a = Math.max(win.start, range.start);
   const b = Math.min(win.end, range.end);

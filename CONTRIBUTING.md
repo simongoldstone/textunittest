@@ -23,7 +23,7 @@ Suggested prefixes:
 
 - Keep PRs focused when possible.
 - Update **documentation** and **examples** when behavior or the DSL changes.
-- For releases, bump **semver** in `package.json`, summarize changes in **[CHANGELOG.md](./CHANGELOG.md)**, and align **[docs/index.md](./docs/index.md)** / **[README.md](./README.md)** if the version or publish story changes.
+- For releases, bump **semver** in `package.json` and `package-lock.json` (e.g. `npm version <new> --no-git-tag-version`), summarize changes in **[CHANGELOG.md](./CHANGELOG.md)** (new `## x.y.z` section at the top), and align version mentions in **[README.md](./README.md)** (**Latest release**), **[docs/index.md](./docs/index.md)** (**Release** line in **Status**), and **[docs/roadmap.md](./docs/roadmap.md)** (**Done (through x.y.z)**) when the version or publish story changes. If the DSL changed, update **[docs/language-specification.md](./docs/language-specification.md)**, **[docs/syntax-guide.md](./docs/syntax-guide.md)**, **[docs/matching-extensions-spec.md](./docs/matching-extensions-spec.md)**, and **[docs/quick-start.md](./docs/quick-start.md)** as needed, plus **examples/** under `examples/`.
 - Note any intentional out-of-scope follow-ups.
 
 ## Local checks

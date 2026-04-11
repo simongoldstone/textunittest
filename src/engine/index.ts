@@ -5,7 +5,14 @@ import { FUZZY_DEFAULT_TOLERANCE_PERCENT, fuzzyPhraseMatchesLineScope } from "..
 import { describeFormatFailure, formatSpecLabel, scopeHasFormatMatch } from "../matching/formats.js";
 import { wildcardMatchesScope } from "../matching/wildcard.js";
 import type { Rule, TestCaseAst, TestSuiteAst } from "../models/ast.js";
-import { applyLocationWindow, lineNumberOneBased, type ScopeWindow } from "./scope.js";
+import {
+  applyLocationWindow,
+  fullFileLineText,
+  lineNumberOneBased,
+  lineOverlapsWindow,
+  scopeLines,
+  type ScopeWindow,
+} from "./scope.js";
 
 export interface TestRunResult {
   testName: string;
@@ -32,16 +39,28 @@ function isLocationRule(r: Rule): boolean {
 function isAssertionRule(r: Rule): boolean {
   switch (r.kind) {
     case "require":
+    case "requireAnyOf":
     case "reject":
+    case "rejectAnyOf":
     case "regex":
     case "rejectRegex":
     case "countLiteral":
+    case "countLiteralAtLeast":
+    case "countLiteralAtMost":
+    case "countLiteralBetween":
     case "countRegex":
+    case "countRegexAtLeast":
+    case "countRegexAtMost":
+    case "countRegexBetween":
     case "startsWith":
     case "endsWith":
     case "requirePattern":
     case "fuzzyRequire":
     case "requireFormat":
+    case "rejectFormat":
+    case "lineMustEqual":
+    case "firstLineMustEqual":
+    case "lastLineMustEqual":
       return true;
     default:
       return false;
@@ -246,6 +265,18 @@ function literalIncludes(haystack: string, needle: string, insensitive: boolean)
   return h.includes(n);
 }
 
+/** Last line of scope ignoring trailing blank lines (so a final newline does not add an empty “last line”). */
+function lastNonBlankLineText(scope: string): string {
+  const lines = scopeLines(scope);
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const L = lines[i]!;
+    if (L.trim() !== "") {
+      return L;
+    }
+  }
+  return "";
+}
+
 function evaluateLength(bytes: number, rule: Rule): string | null {
   switch (rule.kind) {
     case "lengthAtLeast":
@@ -285,10 +316,24 @@ function evaluateAssertion(
       return literalIncludes(scope, rule.literal, insensitive)
         ? null
         : `Require: text not found: ${JSON.stringify(rule.literal)}. Line: ${line}`;
+    case "requireAnyOf": {
+      const ok = rule.literals.some((lit) => literalIncludes(scope, lit, insensitive));
+      return ok
+        ? null
+        : `Require Any Of: none of the options were found: ${rule.literals.map((l) => JSON.stringify(l)).join(", ")}. Line: ${line}`;
+    }
     case "reject":
       return !literalIncludes(scope, rule.literal, insensitive)
         ? null
         : `Reject: forbidden text found: ${JSON.stringify(rule.literal)}. Line: ${line}`;
+    case "rejectAnyOf": {
+      for (const lit of rule.literals) {
+        if (literalIncludes(scope, lit, insensitive)) {
+          return `Reject Any Of: forbidden text found: ${JSON.stringify(lit)}. Line: ${line}`;
+        }
+      }
+      return null;
+    }
     case "regex":
       return regexMatches(scope, rule.pattern, rule.flags, insensitive)
         ? null
@@ -303,11 +348,47 @@ function evaluateAssertion(
         ? null
         : `Count: expected ${rule.count} of ${JSON.stringify(rule.literal)}, found ${got}. Line: ${line}`;
     }
+    case "countLiteralAtLeast": {
+      const got = countLiteralOccurrences(scope, rule.literal, insensitive);
+      return got >= rule.count
+        ? null
+        : `Count: expected at least ${rule.count} of ${JSON.stringify(rule.literal)}, found ${got}. Line: ${line}`;
+    }
+    case "countLiteralAtMost": {
+      const got = countLiteralOccurrences(scope, rule.literal, insensitive);
+      return got <= rule.count
+        ? null
+        : `Count: expected at most ${rule.count} of ${JSON.stringify(rule.literal)}, found ${got}. Line: ${line}`;
+    }
+    case "countLiteralBetween": {
+      const got = countLiteralOccurrences(scope, rule.literal, insensitive);
+      return got >= rule.min && got <= rule.max
+        ? null
+        : `Count: expected between ${rule.min} and ${rule.max} of ${JSON.stringify(rule.literal)}, found ${got}. Line: ${line}`;
+    }
     case "countRegex": {
       const got = countRegexOccurrences(scope, rule.pattern, rule.flags, insensitive);
       return got === rule.count
         ? null
         : `Count: expected ${rule.count} matches for /${rule.pattern}/${rule.flags}, found ${got}. Line: ${line}`;
+    }
+    case "countRegexAtLeast": {
+      const got = countRegexOccurrences(scope, rule.pattern, rule.flags, insensitive);
+      return got >= rule.count
+        ? null
+        : `Count: expected at least ${rule.count} matches for /${rule.pattern}/${rule.flags}, found ${got}. Line: ${line}`;
+    }
+    case "countRegexAtMost": {
+      const got = countRegexOccurrences(scope, rule.pattern, rule.flags, insensitive);
+      return got <= rule.count
+        ? null
+        : `Count: expected at most ${rule.count} matches for /${rule.pattern}/${rule.flags}, found ${got}. Line: ${line}`;
+    }
+    case "countRegexBetween": {
+      const got = countRegexOccurrences(scope, rule.pattern, rule.flags, insensitive);
+      return got >= rule.min && got <= rule.max
+        ? null
+        : `Count: expected between ${rule.min} and ${rule.max} matches for /${rule.pattern}/${rule.flags}, found ${got}. Line: ${line}`;
     }
     case "startsWith": {
       const s = normalizeText(scope, insensitive);
@@ -338,6 +419,41 @@ function evaluateAssertion(
       return scopeHasFormatMatch(scope, rule.spec)
         ? null
         : `Require Format: expected ${formatSpecLabel(rule.spec)}. ${describeFormatFailure(scope, rule.spec)} Line: ${line}`;
+    case "rejectFormat":
+      return !scopeHasFormatMatch(scope, rule.spec)
+        ? null
+        : `Reject Format: ${formatSpecLabel(rule.spec)} must not appear, but a match was found. Line: ${line}`;
+    case "lineMustEqual": {
+      const lt = fullFileLineText(fullContent, rule.line);
+      if (lt === null) {
+        return `Line Must Equal: line ${rule.line} does not exist in the file. Line: ${line}`;
+      }
+      if (!lineOverlapsWindow(fullContent, rule.line, win)) {
+        return `Line Must Equal: line ${rule.line} is outside the current scope. Line: ${line}`;
+      }
+      const got = normalizeText(lt.trim(), insensitive);
+      const exp = normalizeText(rule.literal.trim(), insensitive);
+      return got === exp
+        ? null
+        : `Line Must Equal: line ${rule.line} was ${JSON.stringify(lt.trim())}, expected ${JSON.stringify(rule.literal.trim())}. Line: ${line}`;
+    }
+    case "firstLineMustEqual": {
+      const lines = scopeLines(scope);
+      const first = lines[0] ?? "";
+      const got = normalizeText(first.trim(), insensitive);
+      const exp = normalizeText(rule.literal.trim(), insensitive);
+      return got === exp
+        ? null
+        : `First Line Must Equal: first line was ${JSON.stringify(first.trim())}, expected ${JSON.stringify(rule.literal.trim())}. Line: ${line}`;
+    }
+    case "lastLineMustEqual": {
+      const last = lastNonBlankLineText(scope);
+      const got = normalizeText(last.trim(), insensitive);
+      const exp = normalizeText(rule.literal.trim(), insensitive);
+      return got === exp
+        ? null
+        : `Last Line Must Equal: last non-blank line was ${JSON.stringify(last.trim())}, expected ${JSON.stringify(rule.literal.trim())}. Line: ${line}`;
+    }
     default:
       return null;
   }

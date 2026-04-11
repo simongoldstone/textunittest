@@ -105,14 +105,31 @@ To assert a structured format on a specific line, pair with `Require Format:` (f
 
 ## Count Rules
 
-Use `Count:` when exact match totals matter.
+Use `Count:` when match totals matter — **exact**, **at least**, **at most**, or **between** bounds (for text or regex).
 
 Examples:
 
 ```md
 Count: 2 of "Line Item:"
+Count: at least 1 of "Status"
+Count: between 1 and 5 of "Item:"
 Count: 1 matches /Started:\s+\d{4}-\d{2}-\d{2}T/
+Count: at least 1 matches /warning/i
 ```
+
+## “Any of” and “none of these”
+
+- **`Require Any Of: "A" or "B" or "C"`** — at least one option must appear (logical OR).
+- **`Reject Any Of: "X" or "Y"`** — none of those phrases may appear.
+
+## Exact line text
+
+- **`Line Must Equal: 12 "BEGIN REPORT"`** — whole line (file line number) equals the quote after trimming.
+- **`First Line Must Equal: "..."`** / **`Last Line Must Equal: "..."`** — first or last non-blank line of the current scope.
+
+## Reject a format
+
+- **`Reject Format: Email`** — no valid email in the scope (same format names as **`Require Format:`**).
 
 ## Wildcards, fuzzy, and formats (no regex required)
 

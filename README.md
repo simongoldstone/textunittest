@@ -2,11 +2,11 @@
 
 Human-readable **Markdown** suites for validating **plain text** output—readable rules for reviewers, runnable checks in CI.
 
-**Latest release:** 0.4.0 ([changelog](./CHANGELOG.md)).
+**Latest release:** 0.5.0 ([changelog](./CHANGELOG.md)).
 
 ## Features
 
-- **DSL**: `#` suite title, `##` test names, `Key: value` rules (`Target:`, `Require:`, `Between:`, `On Line:`, `Between Lines:`, `Regex:`, `Length:`, …).
+- **DSL**: `#` suite title, `##` test names, `Key: value` rules (`Target:`, `Require:`, `Require Any Of:`, `Count:` ranges, `Line Must Equal:`, `First Line Must Equal:`, `Between:`, `On Line:`, `Between Lines:`, `Regex:`, `Reject Format:`, `Length:`, …).
 - **String literals** with `"`, `'`, or `` ` `` plus escaping (doubling or `\`).
 - **Matching extensions**: wildcards (`Require Pattern:`), fuzzy text (`Fuzzy Require:` + `Tolerance:`), structured formats (`Require Format:`) without writing regex by hand.
 - **CLI**: `validate` on `.md` suite files or directories; optional **HTML** report.
@@ -60,12 +60,13 @@ From a **clone** without installing globally, use **`npx textunittest`** after `
 | [docs/faq.md](./docs/faq.md) | FAQ |
 | [docs/roadmap.md](./docs/roadmap.md) | What’s done and what’s next |
 | [docs/privacy-redaction.md](./docs/privacy-redaction.md) | Block card-like numbers in output (`Reject Regex`) |
+| [CHANGELOG.md](./CHANGELOG.md) | Release notes (semver history) |
 
 ## Repository layout
 
 ```text
 docs/       Product and language documentation
-examples/   Sample suites and targets (contracts CRM demo, privacy/redaction, …)
+examples/   Sample suites and targets (reader-friendly rules, contracts, privacy/redaction, …)
 src/        Parser, engine, matching, CLI, reporting
 tests/      Unit and integration tests
 ```

@@ -62,6 +62,8 @@ The `examples/contracts/` folder contains a long **CRM-style service agreement**
 
 The `examples/privacy/` folder shows **`Reject Regex:`** checks so exports do not contain **payment card–shaped** number patterns (see [Privacy / redaction](./privacy-redaction.md)).
 
+The `examples/reader-friendly/` folder demonstrates **plain-English** rules: **`Require Any Of:`**, **`Count:`** ranges, **`Line Must Equal:`**, **`First Line Must Equal:`**, **`Last Line Must Equal:`**, and **`Reject Format:`** — see [Language specification](./language-specification.md).
+
 ## 6. String literals
 
 Rules such as `Require:` accept `"`, `'`, or `` ` `` delimiters. Use **doubled** delimiters (`""`, `''`, doubled backticks) or **backslash** escapes (`\"`, `\'`, `` \` ``). See [Language specification — String literals](./language-specification.md#string-literals).
@@ -74,3 +76,7 @@ Install **`textunittest`** from npm with `npm install textunittest` or run **`np
 ## 8. Line-scoped checks (optional)
 
 To require a structured format on a specific file line or line range, use **`On Line:`** or **`Between Lines:`** with **`Require Format:`** (see [Language specification](./language-specification.md) and [Matching extensions](./matching-extensions-spec.md)).
+
+## 9. Release notes
+
+See **[CHANGELOG.md](../CHANGELOG.md)** for semver history and what changed in each release (for example **0.5.0** reader-friendly rules).

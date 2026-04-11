@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0
+
+- **Reader-friendly rules (non-technical wording)** — **`Require Any Of:`** / **`Reject Any Of:`** (quoted options separated by **`or`**), **`Count:`** with **at least**, **at most**, and **between** (for literals and regex matches), **`Line Must Equal:`**, **`First Line Must Equal:`**, **`Last Line Must Equal:`** (last ignores trailing blank lines), **`Reject Format:`** (inverse of **`Require Format:`**).
+- **Suite HTML comments** — full-line `<!-- ... -->` ignored by the parser.
+- Example **`examples/reader-friendly/`**, unit tests **`tests/unit/dsl-extensions.test.ts`**, documentation updates across **`docs/`** (language specification, syntax guide, quick start, index, roadmap, FAQ, matching extensions), **README.md**, and **CONTRIBUTING.md** (release checklist).
+
 ## 0.4.0
 
 - **Privacy / redaction** — Example suite `examples/privacy/redaction-suite.md` with multiple **`Reject Regex:`** patterns for 16-digit PAN-shaped strings (contiguous, dashed, spaced, optional or strict group separators). Documentation in `docs/privacy-redaction.md`; unit tests in `tests/unit/privacy-redaction.test.ts`.

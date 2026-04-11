@@ -41,6 +41,7 @@ Example:
 Each rule is written as `Key: Value` on its own line.
 
 - Rule names are written in title case as shown in this specification.
+- A line that is only a full-line **HTML comment** (`<!-- ... -->`) is ignored so you can leave short notes in the suite file.
 - A test should contain exactly one `Target:` rule.
 - Assertion rules evaluate the selected text scope.
 - Location rules such as `Between:`, `After:`, `Before:`, `On Line:`, and `Between Lines:` narrow the scope before assertions run.
@@ -111,6 +112,26 @@ Example:
 Reject: "ERROR"
 ```
 
+### `Require Any Of:`
+
+At least **one** of the quoted options must appear in the current scope (logical **OR**). Use the word **`or`** between each option (case-insensitive). You need at least two options; for a single phrase use **`Require:`** instead.
+
+Example:
+
+```md
+Require Any Of: "Name" or "Address" or "Postcode"
+```
+
+### `Reject Any Of:`
+
+**None** of the quoted options may appear. If **any** of them is found, the test fails. Same `or` syntax as **`Require Any Of:`**.
+
+Example:
+
+```md
+Reject Any Of: "ERROR" or "FAILED" or "TBD"
+```
+
 ### `Regex:`
 
 Asserts that a regular expression must match at least once in the current scope.
@@ -135,6 +156,34 @@ Reject Regex: /Status:\s+FAIL/
 ```
 
 For **privacy and redaction** (e.g. blocking payment card–shaped numbers in generated output), see [Privacy / redaction](./privacy-redaction.md).
+
+### `Reject Format:`
+
+The opposite of **`Require Format:`**: the scope must **not** contain any valid match for the given format (email, date, UUID, mask, etc.). Uses the same format names as **`Require Format:`** (see [Matching extensions](./matching-extensions-spec.md)).
+
+Example:
+
+```md
+Reject Format: Email
+```
+
+### `Line Must Equal:`
+
+The **entire text of one line** in the **whole file** (by 1-based line number) must equal the quoted string after **trimming** leading and trailing spaces on both sides. The line must also fall inside the current scope (after any **`Between:`** / **`After:`** narrowing). If the line does not exist, the test fails.
+
+Example:
+
+```md
+Line Must Equal: 1 "BEGIN REPORT"
+```
+
+### `First Line Must Equal:`
+
+The **first line** of the current scope must equal the quoted string after trimming. (Use with location rules to target a section.)
+
+### `Last Line Must Equal:`
+
+The **last non-blank line** of the current scope must equal the quoted string after trimming. Trailing empty lines (for example from a final newline at end of file) are ignored so the last *content* line is checked.
 
 ### `Between:`
 
@@ -201,18 +250,30 @@ Require Format: Mask(AAAA-9999999)
 
 ### `Count:`
 
-Asserts an exact number of matches in the current scope.
+Asserts how many times a literal substring or regex matches in the current scope.
 
-Two human-readable forms are supported:
+**Literal counts** (non-overlapping: each match advances past the end of the previous match):
 
-- `Count: N of "literal"`
+- `Count: N of "literal"` — **exactly** `N`
+- `Count: at least N of "literal"`
+- `Count: at most N of "literal"`
+- `Count: between N and M of "literal"` (inclusive)
+
+**Regex match counts** (non-overlapping matches, with `g` semantics):
+
 - `Count: N matches /regex/`
+- `Count: at least N matches /regex/`
+- `Count: at most N matches /regex/`
+- `Count: between N and M matches /regex/`
 
 Examples:
 
 ```md
 Count: 2 of "Line Item:"
+Count: at least 1 of "Status"
+Count: between 1 and 5 of "Item:"
 Count: 1 matches /Started:\s+\d{4}-\d{2}-\d{2}T/
+Count: at least 1 matches /warning/i
 ```
 
 ### `Starts With:`
@@ -322,8 +383,8 @@ Fail: Version number missing from header
 
 The reference implementation in this repository includes:
 
-- **Parser** — Line-oriented Markdown parsing; strict rule keys; string literals as documented under **String literals**.
-- **Engine** — Scope rules applied in order; assertions and `Length:` as described under **Scope Composition**; failure messages include a **Line:** hint (1-based line in the target file at the start of the narrowed scope).
+- **Parser** — Line-oriented Markdown parsing; strict rule keys; string literals as documented under **String literals**; full-line **`<!-- ... -->`** HTML comments ignored under tests.
+- **Engine** — Scope rules applied in order; assertions and `Length:` as described under **Scope Composition**; failure messages include a **Line:** hint (1-based line in the target file at the start of the narrowed scope). Supports **`Require Any Of:`** / **`Reject Any Of:`**, extended **`Count:`** bounds, **`Line Must Equal:`** / **`First Line Must Equal:`** / **`Last Line Must Equal:`**, **`Reject Format:`**, and all rules listed in **Supported Rules**.
 - **CLI** — Human-readable console output and optional HTML report; exit codes 0 / 1 for automation.
 - **Path resolution** — `Target:` paths are resolved relative to the suite file; the runtime is **Node.js** with UTF-8 file reads.
 

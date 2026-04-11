@@ -2,7 +2,11 @@
 
 ## Is TextUnitTest implemented yet?
 
-Yes. Parsing, execution, CLI validation, and reporting are implemented; the package is published on npm as **`textunittest`** (see [CHANGELOG](../CHANGELOG.md) for versions). The language and tooling will continue to evolve in minor ways.
+Yes. Parsing, execution, CLI validation, and reporting are implemented; the package is published on npm as **`textunittest`**. The language and tooling will continue to evolve in minor ways.
+
+## Where are the release notes?
+
+See **[CHANGELOG.md](../CHANGELOG.md)** at the repository root (semver sections **0.5.0**, **0.4.0**, etc.). Each release lists user-facing DSL and documentation changes.
 
 ## Who is TextUnitTest for?
 

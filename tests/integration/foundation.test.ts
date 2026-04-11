@@ -81,6 +81,18 @@ describe("TextUnitTest integration", () => {
     expect(result.results.every((r) => r.passed && !r.error)).toBe(true);
   });
 
+  it("parses and passes examples/reader-friendly/reader-friendly-suite.md", async () => {
+    const suitePath = join(repoRoot, "examples", "reader-friendly", "reader-friendly-suite.md");
+    const source = await readFile(suitePath, "utf8");
+    const parsed = parseSuiteMarkdown(source, "reader-friendly-suite.md");
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) {
+      return;
+    }
+    const result = await runSuite(suitePath, parsed.suite);
+    expect(result.results.every((r) => r.passed && !r.error)).toBe(true);
+  });
+
   it("parses and passes examples/contracts/contract-validation-suite.md", async () => {
     const suitePath = join(repoRoot, "examples", "contracts", "contract-validation-suite.md");
     const source = await readFile(suitePath, "utf8");

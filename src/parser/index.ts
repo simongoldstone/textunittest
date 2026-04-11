@@ -5,7 +5,7 @@ import {
   FUZZY_MIN_PHRASE_LENGTH,
   FUZZY_MIN_TOLERANCE,
 } from "../matching/fuzzy.js";
-import { parseOneDelimitedLiteral, parsePathValue, scanDelimitedString } from "./strings.js";
+import { isStringDelimiter, parseOneDelimitedLiteral, parsePathValue, scanDelimitedString } from "./strings.js";
 
 export { isStringDelimiter, parseOneDelimitedLiteral, parsePathValue, scanDelimitedString } from "./strings.js";
 
@@ -25,7 +25,13 @@ const KEY_ORDER: readonly string[] = [
   "Fuzzy Require:",
   "Require Pattern:",
   "Require Format:",
+  "Reject Format:",
   "Reject Regex:",
+  "First Line Must Equal:",
+  "Last Line Must Equal:",
+  "Line Must Equal:",
+  "Require Any Of:",
+  "Reject Any Of:",
   "Starts With:",
   "Ends With:",
   "Between Lines:",
@@ -83,6 +89,10 @@ export function parseSuiteMarkdown(source: string, filename?: string): ParseResu
     }
 
     if (trimmed === "" || trimmed.startsWith("```")) {
+      continue;
+    }
+
+    if (trimmed.startsWith("<!--") && trimmed.endsWith("-->")) {
       continue;
     }
 
@@ -222,7 +232,19 @@ function parseRuleValue(key: string, value: string): Rule {
       return { kind: "fuzzyRequire", phrase };
     }
     case "Require Format:":
-      return { kind: "requireFormat", spec: parseRequireFormat(value) };
+      return { kind: "requireFormat", spec: parseFormatSpec(value, "Require Format") };
+    case "Reject Format:":
+      return { kind: "rejectFormat", spec: parseFormatSpec(value, "Reject Format") };
+    case "Require Any Of:":
+      return { kind: "requireAnyOf", literals: parseOrSeparatedLiterals(value, "Require Any Of") };
+    case "Reject Any Of:":
+      return { kind: "rejectAnyOf", literals: parseOrSeparatedLiterals(value, "Reject Any Of") };
+    case "Line Must Equal:":
+      return parseLineMustEqual(value);
+    case "First Line Must Equal:":
+      return { kind: "firstLineMustEqual", literal: parseOneDelimitedLiteral(value, "First Line Must Equal") };
+    case "Last Line Must Equal:":
+      return { kind: "lastLineMustEqual", literal: parseOneDelimitedLiteral(value, "Last Line Must Equal") };
     case "Tolerance:":
       return parseTolerance(value);
     default:
@@ -239,7 +261,7 @@ function parseTolerance(value: string): Rule {
   return { kind: "tolerance", percent: n };
 }
 
-function parseRequireFormat(value: string): RequireFormatSpec {
+function parseFormatSpec(value: string, label: string): RequireFormatSpec {
   const t = value.trim();
   const low = t.toLowerCase();
   if (low === "email") {
@@ -280,7 +302,7 @@ function parseRequireFormat(value: string): RequireFormatSpec {
   }
 
   throw new Error(
-    `Require Format: unknown built-in (try Email, UUID, Date(dd-mm-yyyy), Phone(...), Mask(...), etc.)`,
+    `${label}: unknown built-in (try Email, UUID, Date(dd-mm-yyyy), Phone(...), Mask(...), etc.)`,
   );
 }
 
@@ -343,6 +365,57 @@ function parseSlashRegex(
   throw new Error("unterminated regex");
 }
 
+function parseOrSeparatedLiterals(value: string, ruleName: string): string[] {
+  const t = value.trim();
+  const out: string[] = [];
+  let pos = 0;
+  while (pos < t.length && /\s/.test(t[pos]!)) {
+    pos++;
+  }
+  if (pos >= t.length) {
+    throw new Error(`${ruleName}: need at least two quoted options separated by "or"`);
+  }
+  while (pos < t.length) {
+    if (!isStringDelimiter(t[pos]!)) {
+      throw new Error(`${ruleName}: expected a quoted string (use ", ', or \`)`);
+    }
+    const scanned = scanDelimitedString(t, pos);
+    out.push(scanned.value);
+    pos = scanned.end;
+    while (pos < t.length && /\s/.test(t[pos]!)) {
+      pos++;
+    }
+    if (pos >= t.length) {
+      break;
+    }
+    const rest = t.slice(pos);
+    const orM = /^or\s+/i.exec(rest);
+    if (!orM) {
+      throw new Error(`${ruleName}: use the word "or" between each option`);
+    }
+    pos += orM[0]!.length;
+  }
+  if (out.length < 2) {
+    throw new Error(`${ruleName}: need at least two quoted options (for one option use Require: or Reject:)`);
+  }
+  return out;
+}
+
+function parseLineMustEqual(value: string): Rule {
+  const t = value.trim();
+  const m = /^(\d+)\s+/.exec(t);
+  if (!m) {
+    throw new Error('Line Must Equal: start with the line number, then a quoted string (example: 12 "BEGIN")');
+  }
+  const lineNum = Number(m[1]!);
+  if (lineNum < 1) {
+    throw new Error("Line Must Equal: line numbers must be at least 1");
+  }
+  const rest = t.slice(m[0]!.length).trimStart();
+  const literal = parseOneDelimitedLiteral(rest, "Line Must Equal");
+  return { kind: "lineMustEqual", line: lineNum, literal };
+}
+
 function parseBetween(value: string): Rule {
   const t = value.trim();
   const first = scanDelimitedString(t, 0);
@@ -361,6 +434,59 @@ function parseBetween(value: string): Rule {
 
 function parseCount(value: string): Rule {
   const t = value.trim();
+
+  const atLeastOf = /^at\s+least\s+(\d+)\s+of\s+/i.exec(t);
+  if (atLeastOf) {
+    const count = Number(atLeastOf[1]!);
+    const rest = t.slice(atLeastOf[0]!.length).trim();
+    const literal = parseOneDelimitedLiteral(rest, "Count");
+    return { kind: "countLiteralAtLeast", count, literal };
+  }
+  const atMostOf = /^at\s+most\s+(\d+)\s+of\s+/i.exec(t);
+  if (atMostOf) {
+    const count = Number(atMostOf[1]!);
+    const rest = t.slice(atMostOf[0]!.length).trim();
+    const literal = parseOneDelimitedLiteral(rest, "Count");
+    return { kind: "countLiteralAtMost", count, literal };
+  }
+  const betweenOf = /^between\s+(\d+)\s+and\s+(\d+)\s+of\s+/i.exec(t);
+  if (betweenOf) {
+    const min = Number(betweenOf[1]!);
+    const max = Number(betweenOf[2]!);
+    if (min > max) {
+      throw new Error("Count: between min must be less than or equal to max");
+    }
+    const rest = t.slice(betweenOf[0]!.length).trim();
+    const literal = parseOneDelimitedLiteral(rest, "Count");
+    return { kind: "countLiteralBetween", min, max, literal };
+  }
+
+  const atLeastMatches = /^at\s+least\s+(\d+)\s+matches\s+/i.exec(t);
+  if (atLeastMatches) {
+    const count = Number(atLeastMatches[1]!);
+    const rest = t.slice(atLeastMatches[0]!.length).trim();
+    const rx = parseSlashRegex(rest, "regex");
+    return { kind: "countRegexAtLeast", count, pattern: rx.pattern, flags: rx.flags };
+  }
+  const atMostMatches = /^at\s+most\s+(\d+)\s+matches\s+/i.exec(t);
+  if (atMostMatches) {
+    const count = Number(atMostMatches[1]!);
+    const rest = t.slice(atMostMatches[0]!.length).trim();
+    const rx = parseSlashRegex(rest, "regex");
+    return { kind: "countRegexAtMost", count, pattern: rx.pattern, flags: rx.flags };
+  }
+  const betweenMatches = /^between\s+(\d+)\s+and\s+(\d+)\s+matches\s+/i.exec(t);
+  if (betweenMatches) {
+    const min = Number(betweenMatches[1]!);
+    const max = Number(betweenMatches[2]!);
+    if (min > max) {
+      throw new Error("Count: between min must be less than or equal to max");
+    }
+    const rest = t.slice(betweenMatches[0]!.length).trim();
+    const rx = parseSlashRegex(rest, "regex");
+    return { kind: "countRegexBetween", min, max, pattern: rx.pattern, flags: rx.flags };
+  }
+
   const ofMatch = /^(\d+)\s+of\s+/i.exec(t);
   if (ofMatch) {
     const count = Number(ofMatch[1]!);
@@ -375,7 +501,9 @@ function parseCount(value: string): Rule {
     const rx = parseSlashRegex(rest, "regex");
     return { kind: "countRegex", count, pattern: rx.pattern, flags: rx.flags };
   }
-  throw new Error('Count: expected "N of <quoted literal>" or "N matches /.../"');
+  throw new Error(
+    'Count: expected "N of ...", "at least N of ...", "at most N of ...", "between N and M of ...", or the same with "matches /.../"',
+  );
 }
 
 function parseLength(value: string): Rule {
