@@ -2,7 +2,7 @@ import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { FUZZY_DEFAULT_TOLERANCE_PERCENT, fuzzyPhraseMatchesLineScope } from "../matching/fuzzy.js";
-import { formatSpecLabel, scopeHasFormatMatch } from "../matching/formats.js";
+import { describeFormatFailure, formatSpecLabel, scopeHasFormatMatch } from "../matching/formats.js";
 import { wildcardMatchesScope } from "../matching/wildcard.js";
 import type { Rule, TestCaseAst, TestSuiteAst } from "../models/ast.js";
 import { applyLocationWindow, lineNumberOneBased, type ScopeWindow } from "./scope.js";
@@ -307,7 +307,8 @@ function evaluateAssertion(
         : `Starts With: scope does not start with ${JSON.stringify(rule.literal)}. Line: ${line}`;
     }
     case "endsWith": {
-      const s = normalizeText(scope, insensitive);
+      // Ignore trailing newlines on scope so files ending with \n still match the last line of text.
+      const s = normalizeText(scope, insensitive).replace(/\r?\n+$/, "");
       const p = normalizeText(rule.literal, insensitive);
       return s.endsWith(p)
         ? null
@@ -326,7 +327,7 @@ function evaluateAssertion(
     case "requireFormat":
       return scopeHasFormatMatch(scope, rule.spec)
         ? null
-        : `Require Format: no match for ${formatSpecLabel(rule.spec)}. Line: ${line}`;
+        : `Require Format: expected ${formatSpecLabel(rule.spec)}. ${describeFormatFailure(scope, rule.spec)} Line: ${line}`;
     default:
       return null;
   }

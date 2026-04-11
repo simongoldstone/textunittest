@@ -1,85 +1,76 @@
 # TextUnitTest
 
-Human-readable Markdown unit testing for generated text files.
+Human-readable **Markdown** suites for validating **plain text** output—readable rules for reviewers, runnable checks in CI.
 
-TextUnitTest is a Markdown-based DSL and CLI for validating text output with readable, English-like rules. It is designed for teams that need confidence in generated files without forcing every reviewer or stakeholder to learn a programming test framework.
+## Features
 
-## Why TextUnitTest
+- **DSL**: `#` suite title, `##` test names, `Key: value` rules (`Target:`, `Require:`, `Between:`, `Regex:`, `Length:`, …).
+- **String literals** with `"`, `'`, or `` ` `` plus escaping (doubling or `\`).
+- **Matching extensions**: wildcards (`Require Pattern:`), fuzzy text (`Fuzzy Require:` + `Tolerance:`), structured formats (`Require Format:`) without writing regex by hand.
+- **CLI**: `validate` on `.md` suite files or directories; optional **HTML** report.
+- **Library API**: parse suites and run them from TypeScript (`parseSuiteMarkdown`, `runSuite`, …).
 
-Generated text files often need lightweight validation in release pipelines, document workflows, and content generation systems. TextUnitTest aims to make those checks accessible to non-technical users while still fitting naturally into CI/CD automation.
+## Requirements
 
-It is built around a few simple ideas:
+- **Node.js 20+** (see `engines` in `package.json`). Older Node versions are not supported (Vitest and tooling expect modern runtimes).
 
-- Non-technical users should be able to read and write tests.
-- Validation rules should look like plain English instead of code.
-- Test suites should live in version control and run cleanly in CI.
+## Quick start (from a clone)
 
-## Example
-
-```md
-# Invoice Validation Suite
-
-## Ensure version number exists
-
-Target: invoice.txt
-Require: "Version:"
-Between: "Welcome" and "Copyright"
-Fail: Version number missing from header
+```bash
+npm install
+npm run build
+npx textunittest validate examples/basic
 ```
 
-## Installation
+Run **all** example suites:
+
+```bash
+npx textunittest validate examples
+```
+
+HTML report:
+
+```bash
+npx textunittest validate examples --html report.html
+```
+
+Exit code **0** when every test passes, **1** on failure or error—suitable for CI.
+
+## Using the published package (after npm publish)
 
 ```bash
 npm install -g textunittest
+textunittest validate ./tests
 ```
 
-## Planned CLI Usage
-
-```bash
-textunittest validate tests/
-```
-
-## Phase 1 Scope
-
-This repository currently provides:
-
-- The public open-source repository foundation
-- The initial DSL and Markdown syntax specification
-- Example suites and sample target files
-- TypeScript project scaffolding for future implementation
-- CI workflow skeletons for build and test automation
-
-This phase intentionally does not include parser, execution engine, or reporting logic yet.
+Until published, use **`npx textunittest`** from a built clone or **`node dist/cli/index.js validate …`** after `npm run build`.
 
 ## Documentation
 
-- [Project documentation](./docs/index.md)
-- [Language specification](./docs/language-specification.md)
-- [Syntax guide](./docs/syntax-guide.md)
-- [Quick start](./docs/quick-start.md)
-- [CI integration](./docs/ci-integration.md)
-- [Roadmap](./docs/roadmap.md)
-- [FAQ](./docs/faq.md)
+| Doc | Purpose |
+|-----|---------|
+| [docs/index.md](./docs/index.md) | Doc index |
+| [docs/language-specification.md](./docs/language-specification.md) | Full rule reference |
+| [docs/syntax-guide.md](./docs/syntax-guide.md) | How to write suites |
+| [docs/quick-start.md](./docs/quick-start.md) | Step-by-step workflow |
+| [docs/matching-extensions-spec.md](./docs/matching-extensions-spec.md) | Wildcards, fuzzy, formats |
+| [docs/ci-integration.md](./docs/ci-integration.md) | GitHub Actions and automation |
+| [docs/faq.md](./docs/faq.md) | FAQ |
+| [docs/roadmap.md](./docs/roadmap.md) | What’s done and what’s next |
 
-## Repository Layout
+## Repository layout
 
 ```text
 docs/       Product and language documentation
-examples/   Sample text files and Markdown validation suites
-src/        Placeholder TypeScript source structure
-tests/      Placeholder test directories and repository smoke test
+examples/   Sample suites and target text files
+src/        Parser, engine, matching, CLI, reporting
+tests/      Unit and integration tests
 ```
-
-## Project Status
-
-Early development - specification phase.
-
-The current goal is to establish a polished, contributor-friendly open-source foundation that can support parser and engine work in later milestones.
 
 ## Contributing
 
-Contributions are welcome. Please start with [CONTRIBUTING.md](./CONTRIBUTING.md) before opening a pull request.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) before opening a pull request.
 
 ## License
 
-TextUnitTest is released under the [MIT License](./LICENSE).
+[MIT](./LICENSE)

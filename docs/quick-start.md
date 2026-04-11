@@ -1,48 +1,67 @@
 # Quick Start
 
-This quick start walks through the intended TextUnitTest workflow.
+## 1. Prerequisites
 
-## 1. Create a Text File
-
-Create a text file that you want to validate.
-
-Example:
-
-```text
-Welcome to Example Corp
-Version: 2026.1
-Copyright 2026 Example Corp
-```
-
-## 2. Create a Markdown Test Suite
-
-Create a Markdown file beside the target file.
-
-Example:
-
-```md
-# Invoice Validation Suite
-
-## Ensure version number exists
-
-Target: invoice.txt
-Require: "Version:"
-Between: "Welcome" and "Copyright"
-Fail: Version number missing from header
-```
-
-## 3. Run the Validation Command
-
-Planned CLI usage:
+- [Node.js](https://nodejs.org/) **20 or later** (`node -v`).
+- Clone the repo and install dependencies:
 
 ```bash
-textunittest validate tests/
+npm install
+npm run build
 ```
 
-## 4. Add It to Automation
+## 2. Create a text file
 
-TextUnitTest is designed to be CI-friendly, so the same command can eventually run in local checks, GitHub Actions, Azure DevOps, or other automation systems.
+Example: `output.txt` with the content you want to validate.
 
-## String literals
+## 3. Create a Markdown suite beside it
 
-Rules such as `Require:` accept text in double quotes, single quotes, or backticks. To include the delimiter character inside the string, double it (`""`, `''`, or doubled backticks) or use `\"`, `\'`, `` \` ``. See the [language specification](./language-specification.md) section **String literals**.
+Example `checks.md`:
+
+```md
+# My checks
+
+## Version line exists
+
+Target: output.txt
+Require: "Version:"
+```
+
+`Target:` paths are resolved **relative to the `.md` file** that contains them.
+
+## 4. Run validation
+
+From the directory that contains your suite (or pass a path):
+
+```bash
+npx textunittest validate checks.md
+```
+
+Or validate a **folder** (all `*.md` files under it, recursively):
+
+```bash
+npx textunittest validate ./tests
+```
+
+Optional HTML report:
+
+```bash
+npx textunittest validate ./tests --html report.html
+```
+
+Exit code **0** when all tests pass, **1** otherwise.
+
+## 5. Try the bundled examples
+
+```bash
+npx textunittest validate examples/basic
+npx textunittest validate examples
+```
+
+## 6. String literals
+
+Rules such as `Require:` accept `"`, `'`, or `` ` `` delimiters. Use **doubled** delimiters (`""`, `''`, doubled backticks) or **backslash** escapes (`\"`, `\'`, `` \` ``). See [Language specification — String literals](./language-specification.md#string-literals).
+
+## 7. Automation
+
+Use the same command in GitHub Actions, Azure DevOps, or any CI that provides Node 20+. See [CI integration](./ci-integration.md).

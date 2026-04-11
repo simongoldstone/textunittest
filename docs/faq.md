@@ -10,7 +10,7 @@ It is aimed at teams that want to validate generated text files with rules that 
 
 ## Is the DSL final?
 
-No. The current documentation describes the planned v1 direction and is expected to evolve as parser and engine work begins.
+No. The language and docs will keep evolving; minor rule additions or clarifications are expected. Breaking changes should be versioned (see [CHANGELOG](../CHANGELOG.md)).
 
 ## Why Markdown?
 
@@ -18,7 +18,7 @@ Markdown keeps suites readable in editors, pull requests, documentation portals,
 
 ## Will TextUnitTest support CI systems?
 
-Yes. CI friendliness is a core product goal, and the planned CLI is intended to work naturally in systems such as GitHub Actions and Azure DevOps.
+Yes. Use **Node.js 20+**, run `npx textunittest validate …` (or the library API) in your pipeline. See [CI integration](./ci-integration.md).
 
 ## Does `Length:` count characters or bytes?
 

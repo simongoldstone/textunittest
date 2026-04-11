@@ -207,3 +207,56 @@ export function formatSpecLabel(spec: RequireFormatSpec): string {
     }
   }
 }
+
+function previewText(s: string, max = 100): string {
+  const t = s.trim().replace(/\s+/g, " ");
+  return t.length > max ? `${t.slice(0, max - 3)}...` : t;
+}
+
+/** Extra context when `scopeHasFormatMatch` is false (for logs and reviewers). */
+export function describeFormatFailure(scope: string, spec: RequireFormatSpec): string {
+  const lines = scope.split(/\r?\n/);
+  const nonEmpty = lines.map((l) => l.trim()).filter((l) => l.length > 0);
+  const firstSnippet = nonEmpty[0] ? previewText(nonEmpty[0]!) : "«empty or whitespace-only scope»";
+
+  switch (spec.kind) {
+    case "date": {
+      const tokens = lines.flatMap((line) => extractDateCandidates(line, spec.dateFormat));
+      const bad = tokens.filter((t) => !dateTokenValid(t, spec.dateFormat));
+      if (bad.length > 0) {
+        return `Found date-shaped token(s) that fail calendar validation: ${bad
+          .slice(0, 3)
+          .map((t) => JSON.stringify(t))
+          .join(", ")}`;
+      }
+      if (tokens.length > 0) {
+        return `No valid ${formatSpecLabel(spec)} value (checked ${tokens.length} candidate token(s)).`;
+      }
+      return `No tokens matching the ${spec.dateFormat} pattern. First line: ${firstSnippet}`;
+    }
+    case "phone":
+    case "customMask": {
+      const mask = spec.mask;
+      if (lines.some((line) => line.length >= mask.length)) {
+        return `No substring matches mask (${mask.length} chars). First line: ${firstSnippet}`;
+      }
+      return `Scope lines shorter than mask (${mask.length} chars required). First line: ${firstSnippet}`;
+    }
+    case "email":
+      return `No email-like address found (local@domain.tld). First line: ${firstSnippet}`;
+    case "integer":
+      return `No standalone integer token found (avoid numbers immediately before a decimal point). First line: ${firstSnippet}`;
+    case "decimal":
+      return `No decimal number token found (e.g. 12.34). First line: ${firstSnippet}`;
+    case "currency":
+      return `No currency amount with symbol ${JSON.stringify(spec.symbol)}. First line: ${firstSnippet}`;
+    case "uuid":
+      return `No UUID (8-4-4-4-12 hex) found. First line: ${firstSnippet}`;
+    case "ukPostcode":
+      return `No UK postcode pattern found. First line: ${firstSnippet}`;
+    default: {
+      const _e: never = spec;
+      return _e;
+    }
+  }
+}

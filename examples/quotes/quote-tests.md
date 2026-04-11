@@ -10,10 +10,10 @@ Require: "Line A: say ""hello"""
 Target: quote-sample.txt
 Require: 'Line B: it''s ok'
 
-## Backticks in content (doubled backticks)
+## Backticks in content (single-quoted literal avoids nested-backtick parsing)
 
 Target: quote-sample.txt
-Require: `Line C: ``tick``
+Require: 'Line C: `tick`'
 
 ## Backslash escapes in a double-quoted string
 

@@ -197,6 +197,8 @@ Starts With: "Quarterly Report"
 
 Asserts that the current scope ends with the given literal string.
 
+Implementation note: **trailing newlines** at the end of the scope are ignored so typical text files that end with a final line break still match the last line of content.
+
 Example:
 
 ```md
@@ -282,14 +284,17 @@ Between: "Welcome" and "Copyright"
 Fail: Version number missing from header
 ```
 
-## Non-Goals for Phase 1
+## Implementation notes
 
-This specification does not yet define:
+The reference implementation in this repository includes:
 
-- Parser implementation details
-- Error recovery behavior
-- CLI output formatting
-- Machine-readable report schemas
-- Full path resolution rules across every runtime environment
+- **Parser** — Line-oriented Markdown parsing; strict rule keys; string literals as documented under **String literals**.
+- **Engine** — Scope rules applied in order; assertions and `Length:` as described under **Scope Composition**; failure messages include a **Line:** hint (1-based line in the target file at the start of the narrowed scope).
+- **CLI** — Human-readable console output and optional HTML report; exit codes 0 / 1 for automation.
+- **Path resolution** — `Target:` paths are resolved relative to the suite file; the runtime is **Node.js** with UTF-8 file reads.
 
-Those details are expected to be refined during later implementation milestones.
+Not yet standardized or out of scope for the current docs:
+
+- Machine-readable report formats (e.g. JUnit JSON) for CI dashboards
+- Graceful recovery from malformed Markdown beyond clear parse errors
+- Non-Node or non–UTF-8 execution environments

@@ -11,3 +11,4 @@ export {
 export type { SuiteRunResult, TestRunResult } from "./engine/index.js";
 export { runSuite } from "./engine/index.js";
 export { formatConsoleReport, formatHtmlReport } from "./reporting/index.js";
+export { describeFormatFailure, formatSpecLabel } from "./matching/formats.js";

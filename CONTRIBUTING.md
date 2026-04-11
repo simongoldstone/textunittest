@@ -2,33 +2,32 @@
 
 Thanks for your interest in improving TextUnitTest.
 
-## Development Workflow
+## Development workflow
 
 1. Fork the repository.
 2. Create a feature branch from `main`.
 3. Make focused changes with clear commit messages.
-4. Run local checks before opening a pull request.
-5. Open a pull request that explains the intent, scope, and follow-up work.
+4. Run local checks before opening a pull request (see below).
+5. Open a pull request that explains the intent, scope, and any follow-up work.
 
-## Branch Naming Suggestions
+## Branch naming
 
-Use descriptive branch names that make review easier. Suggested prefixes:
+Suggested prefixes:
 
-- `docs/...` for documentation updates
-- `chore/...` for repository maintenance
-- `feat/...` for new features
-- `fix/...` for bug fixes
+- `docs/...` — documentation
+- `chore/...` — maintenance
+- `feat/...` — features
+- `fix/...` — bug fixes
 
-## Pull Request Guidance
+## Pull requests
 
-- Keep pull requests focused on a single concern whenever possible.
-- Update documentation when behavior, structure, or contributor expectations change.
-- Include examples or reasoning when you are evolving the DSL design.
-- Note any future work that is intentionally out of scope for the current pull request.
+- Keep PRs focused when possible.
+- Update **documentation** and **examples** when behavior or the DSL changes.
+- Note any intentional out-of-scope follow-ups.
 
-## Local Checks
+## Local checks
 
-Install dependencies and run the current repository checks before submitting:
+**Node.js 20+** is required (`node -v`). If you use [nvm](https://github.com/nvm-sh/nvm) or [nvm-windows](https://github.com/coreybutler/nvm-windows), run `nvm use` in the repo root (see [`.nvmrc`](./.nvmrc)).
 
 ```bash
 npm install
@@ -36,9 +35,10 @@ npm run build
 npm test
 ```
 
-## Code Style Expectations
+During development you can use **`npm run test:watch`** for Vitest in watch mode.
 
-- Prefer small, modular changes.
-- Preserve strict TypeScript settings.
-- Keep parser, engine, reporting, and CLI concerns clearly separated.
-- Avoid introducing implementation logic into placeholder modules during specification-only phases unless the change explicitly targets implementation work.
+## Code style
+
+- Prefer small, focused changes.
+- Preserve **strict TypeScript** (`tsconfig.json`).
+- Keep **parser**, **engine**, **matching**, **reporting**, and **CLI** responsibilities separated.

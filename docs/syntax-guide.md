@@ -129,6 +129,10 @@ Length: exactly 4096
 Length: between 500 and 2000
 ```
 
+## Trailing newlines
+
+Text files often end with a newline after the last line. **`Ends With:`** ignores trailing `\r` / `\n` on the scope so you can match the last line of text without encoding the final newline in the literal.
+
 ## Readability Tips
 
 - Keep test names specific and outcome-focused.

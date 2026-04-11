@@ -289,7 +289,8 @@ function parseSlashRegex(
   while (i < t.length) {
     const c = t[i]!;
     if (c === "\\" && i + 1 < t.length) {
-      pattern += t[i + 1]!;
+      // Preserve regex escapes (\d, \s, \w, \\, etc.) in the pattern string for RegExp.
+      pattern += `\\${t[i + 1]!}`;
       i += 2;
       continue;
     }
