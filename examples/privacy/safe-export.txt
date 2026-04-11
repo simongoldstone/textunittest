@@ -1,0 +1,16 @@
+Customer export — 2026-04-15T14:22:01Z
+=====================================
+
+Account ID:    ACCT-8f2a-91c4-4e0d
+Customer ref:  CUST-009472
+Order ref:     ORD-2026-118472-A
+Invoice ref:   INV-2026-004821
+
+Total amount:  £1,240.00 (VAT included)
+No payment card data is stored in this extract.
+
+Notes:
+- Line items reference only SKU and internal product codes.
+- For support quote ticket CS-774821.
+
+End of export.

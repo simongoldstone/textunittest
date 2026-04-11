@@ -20,6 +20,10 @@ Markdown keeps suites readable in editors, pull requests, documentation portals,
 
 Yes. Use **Node.js 20+**, run `npx textunittest validate …` (or the library API) in your pipeline. See [CI integration](./ci-integration.md).
 
+## How do I fail a test if credit card numbers appear in output?
+
+Use **`Reject Regex:`** with patterns that match PAN-shaped strings (for example 16 digits, or grouped with spaces or dashes). See [Privacy / redaction](./privacy-redaction.md) and `examples/privacy/redaction-suite.md`. These checks are heuristic; tune patterns for false positives (long numeric IDs).
+
 ## Does `Length:` count characters or bytes?
 
 `Length:` uses **UTF-8 bytes**, which usually matches the file’s size on disk for a UTF-8 text file. Character counts can differ when the text includes emoji or other multi-byte Unicode sequences.

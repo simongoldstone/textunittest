@@ -60,6 +60,8 @@ npx textunittest validate examples
 
 The `examples/contracts/` folder contains a long **CRM-style service agreement** (`crm-generated-service-agreement.txt`) and a **large suite** (`contract-validation-suite.md`) with dozens of tests—useful as a reference for real-world validation. Narrative notes live in `examples/contracts/README.txt` (not `.md`, so they are not picked up as suites when scanning `examples/`).
 
+The `examples/privacy/` folder shows **`Reject Regex:`** checks so exports do not contain **payment card–shaped** number patterns (see [Privacy / redaction](./privacy-redaction.md)).
+
 ## 6. String literals
 
 Rules such as `Require:` accept `"`, `'`, or `` ` `` delimiters. Use **doubled** delimiters (`""`, `''`, doubled backticks) or **backslash** escapes (`\"`, `\'`, `` \` ``). See [Language specification — String literals](./language-specification.md#string-literals).

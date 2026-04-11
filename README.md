@@ -2,7 +2,7 @@
 
 Human-readable **Markdown** suites for validating **plain text** output—readable rules for reviewers, runnable checks in CI.
 
-**Latest release:** 0.3.0 ([changelog](./CHANGELOG.md)).
+**Latest release:** 0.4.0 ([changelog](./CHANGELOG.md)).
 
 ## Features
 
@@ -59,12 +59,13 @@ From a **clone** without installing globally, use **`npx textunittest`** after `
 | [docs/ci-integration.md](./docs/ci-integration.md) | GitHub Actions and automation |
 | [docs/faq.md](./docs/faq.md) | FAQ |
 | [docs/roadmap.md](./docs/roadmap.md) | What’s done and what’s next |
+| [docs/privacy-redaction.md](./docs/privacy-redaction.md) | Block card-like numbers in output (`Reject Regex`) |
 
 ## Repository layout
 
 ```text
 docs/       Product and language documentation
-examples/   Sample suites and target text files (see examples/contracts/README.txt for the CRM contract demo)
+examples/   Sample suites and targets (contracts CRM demo, privacy/redaction, …)
 src/        Parser, engine, matching, CLI, reporting
 tests/      Unit and integration tests
 ```

@@ -9,7 +9,8 @@
 - [CI integration](./ci-integration.md)
 - [Roadmap](./roadmap.md)
 - [FAQ](./faq.md)
+- [Privacy / redaction (card-like patterns)](./privacy-redaction.md) — `Reject Regex` for PAN-shaped output
 
 ## Status
 
-**Release 0.3.0** — The parser, execution engine, CLI, and reporting described in these docs are **implemented** and published on npm as `textunittest`. The language may continue to evolve in minor ways; see the [roadmap](./roadmap.md) for planned extensions.
+**Release 0.4.0** — The parser, execution engine, CLI, and reporting described in these docs are **implemented** and published on npm as `textunittest`. The language may continue to evolve in minor ways; see the [roadmap](./roadmap.md) for planned extensions.

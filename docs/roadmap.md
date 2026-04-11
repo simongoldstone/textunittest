@@ -1,12 +1,12 @@
 # Roadmap
 
-## Done (through 0.3.0)
+## Done (through 0.4.0)
 
 - **Parser** — Markdown suites, headings, rule keys, string literals (three quote styles + escapes).
 - **Engine** — Scope narrowing (`Between` / `After` / `Before` / **`On Line:`** / **`Between Lines:`**), assertions, UTF-8 `Length:` on whole files, **wildcard** / **fuzzy** / **format** matching.
 - **CLI** — `textunittest validate` with optional `--html`.
 - **Reporting** — Console summary and HTML report.
-- **Examples** — `examples/*` covering basic, regex, reports, invoices, quotes, matching, and a **large CRM contract** (`examples/contracts/`) with an extensive validation suite.
+- **Examples** — `examples/*` covering basic, regex, reports, invoices, quotes, matching, a **large CRM contract** (`examples/contracts/`), and **privacy / PAN redaction** (`examples/privacy/`).
 - **CI** — Single workflow runs build + tests on Node 20.
 - **npm** — Package published as [`textunittest`](https://www.npmjs.com/package/textunittest); semver and [CHANGELOG](../CHANGELOG.md) track releases.
 

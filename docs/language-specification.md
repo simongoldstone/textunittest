@@ -134,6 +134,8 @@ Example:
 Reject Regex: /Status:\s+FAIL/
 ```
 
+For **privacy and redaction** (e.g. blocking payment card–shaped numbers in generated output), see [Privacy / redaction](./privacy-redaction.md).
+
 ### `Between:`
 
 Narrows the scope to the text between two literal markers.
