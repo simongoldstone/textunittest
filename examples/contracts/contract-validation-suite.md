@@ -96,6 +96,29 @@ Target: crm-generated-service-agreement.txt
 Between Lines: 111 and 115
 Require Format: Mask(PRD-AAA-AAA-999)
 
+## Commercial pricing table by line range (detail lines only)
+
+Target: crm-generated-service-agreement.txt
+Between Lines: 133 and 144
+Require: "£124,920.00"
+Require: "VAT (20%)"
+Require Format: Currency(£)
+
+## Data protection clauses by line range (section 10 body)
+
+Target: crm-generated-service-agreement.txt
+Between Lines: 227 and 240
+Require: "DPA-UK-2026-01"
+Require: "UK GDPR"
+Require: "CUST-009472"
+
+## Signature block by line range (both execution dates)
+
+Target: crm-generated-service-agreement.txt
+Between Lines: 314 and 326
+Count: 2 of "28/04/2026"
+Require Format: Date(dd/mm/yyyy)
+
 ## Commercial table includes subtotal VAT and total
 
 Target: crm-generated-service-agreement.txt

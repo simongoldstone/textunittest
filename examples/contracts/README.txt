@@ -10,7 +10,8 @@ This folder contains a large, realistic CRM-style export and a full validation s
 
   contract-validation-suite.md
     Markdown suite with many tests (Require, Regex, Between / After, On Line:,
-    Between Lines:, Require Format, Count, Fuzzy Require, Require Pattern,
+    Between Lines: (several line-range checks on the agreement), Require Format,
+    Count, Fuzzy Require, Require Pattern,
     Length, Reject, Case, etc.).
 
 Run from the repo root:
