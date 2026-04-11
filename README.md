@@ -4,6 +4,34 @@ Human-readable **Markdown** suites for validating **plain text** output—readab
 
 **Latest release:** 0.5.0 ([changelog](./CHANGELOG.md)).
 
+## At a glance
+
+You write **tests as Markdown**: a suite file (`.md`) lists one or more tests. Each test points at a **text file** (`Target:`) and adds **rules**—phrases that must appear, must not appear, patterns, counts, and more. Paths are relative to the suite file.
+
+**Minimal example** — require a string and set a friendly failure message:
+
+```md
+# Release checks
+
+## Version must be mentioned
+
+Target: release-notes.txt
+Require: "Version:"
+Fail: Generated notes are missing a version line
+```
+
+**Another test in the same file** — forbid bad output and allow one of several good phrases:
+
+```md
+## Status is acceptable
+
+Target: release-notes.txt
+Reject: "BUILD FAILED"
+Require Any Of: "Status: OK" or "Status: PASSED" or "Build succeeded"
+```
+
+Run the checker with `npx textunittest validate path/to/suite.md`. See [`examples/basic/`](./examples/basic/) for runnable samples.
+
 ## Features
 
 - **DSL**: `#` suite title, `##` test names, `Key: value` rules (`Target:`, `Require:`, `Require Any Of:`, `Count:` ranges, `Line Must Equal:`, `First Line Must Equal:`, `Between:`, `On Line:`, `Between Lines:`, `Regex:`, `Reject Format:`, `Length:`, …).
