@@ -23,6 +23,61 @@ export function lineNumberOneBased(fullContent: string, offset: number): number 
   return line;
 }
 
+/**
+ * Character range in full-file coordinates for one 1-based line (newline is not included in the range).
+ * Returns null if the line does not exist.
+ */
+export function fullFileLineRange(content: string, lineOneBased: number): { start: number; end: number } | null {
+  if (lineOneBased < 1) {
+    return null;
+  }
+  let line = 1;
+  let i = 0;
+  while (line < lineOneBased) {
+    const j = content.indexOf("\n", i);
+    if (j === -1) {
+      return null;
+    }
+    i = j + 1;
+    line++;
+  }
+  const start = i;
+  const nl = content.indexOf("\n", start);
+  const end = nl === -1 ? content.length : nl;
+  return { start, end };
+}
+
+/**
+ * Inclusive 1-based line range in full-file coordinates (each line excludes its trailing newline).
+ */
+export function fullFileLinesRange(
+  content: string,
+  firstLine: number,
+  lastLine: number,
+): { start: number; end: number } | null {
+  if (firstLine < 1 || lastLine < firstLine) {
+    return null;
+  }
+  const first = fullFileLineRange(content, firstLine);
+  if (!first) {
+    return null;
+  }
+  const last = fullFileLineRange(content, lastLine);
+  if (!last) {
+    return null;
+  }
+  return { start: first.start, end: last.end };
+}
+
+function intersectWithRange(content: string, win: ScopeWindow, range: { start: number; end: number }): ScopeWindow | null {
+  const a = Math.max(win.start, range.start);
+  const b = Math.min(win.end, range.end);
+  if (a >= b) {
+    return null;
+  }
+  return { scope: content.slice(a, b), start: a, end: b };
+}
+
 export function applyLocationWindow(
   content: string,
   win: ScopeWindow,
@@ -62,6 +117,20 @@ export function applyLocationWindow(
         return null;
       }
       return { scope: slice.slice(0, i), start: win.start, end: win.start + i };
+    }
+    case "onLine": {
+      const range = fullFileLineRange(content, loc.line);
+      if (!range) {
+        return null;
+      }
+      return intersectWithRange(content, win, range);
+    }
+    case "betweenLines": {
+      const range = fullFileLinesRange(content, loc.firstLine, loc.lastLine);
+      if (!range) {
+        return null;
+      }
+      return intersectWithRange(content, win, range);
     }
     default:
       return win;

@@ -1,0 +1,22 @@
+header
+meta
+contact: user@example.com
+skip
+skip
+skip
+skip
+skip
+published: 2024-01-15
+skip
+skip
+skip
+skip
+skip
+ref: ABCD-1234567
+noise
+more
+still in range
+last line of window
+pad21
+pad22
+after window

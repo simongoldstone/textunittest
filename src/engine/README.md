@@ -1,10 +1,11 @@
 # Engine Module
 
-This directory is reserved for the future validation engine.
+Test execution: resolve `Target:` files, apply location rules (`Between`, `After`, `Before`, `On Line`, `Between Lines`), evaluate assertions, and return pass/fail results.
 
-Planned responsibilities:
+Responsibilities:
 
-- Resolve target files
-- Apply scope rules such as `Between`, `After`, and `Before`
-- Evaluate assertions such as `Require`, `Reject`, `Regex`, and `Count`
-- Return structured pass and fail results
+- Resolve target paths relative to the suite file
+- Apply scope rules in document order (intersecting constraints)
+- Evaluate assertions (`Require`, `Reject`, `Regex`, `Count`, wildcards, fuzzy, formats, etc.)
+- `Length:` checks against the whole file UTF-8 byte length
+- Return structured results for the CLI and HTML reporter

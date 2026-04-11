@@ -23,6 +23,7 @@ Suggested prefixes:
 
 - Keep PRs focused when possible.
 - Update **documentation** and **examples** when behavior or the DSL changes.
+- For releases, bump **semver** in `package.json`, summarize changes in **[CHANGELOG.md](./CHANGELOG.md)**, and align **[docs/index.md](./docs/index.md)** / **[README.md](./README.md)** if the version or publish story changes.
 - Note any intentional out-of-scope follow-ups.
 
 ## Local checks

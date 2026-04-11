@@ -1,10 +1,10 @@
 # Parser Module
 
-This directory is reserved for the future TextUnitTest Markdown parser.
+Markdown suite parsing: headings, rule lines, string literals, and a stable AST consumed by the engine.
 
-Planned responsibilities:
+Responsibilities:
 
-- Read Markdown suite files
+- Read Markdown suite files (via the public `parseSuiteMarkdown` API)
 - Parse headings and rule lines
 - Produce a stable AST for execution
-- Surface useful syntax diagnostics
+- Surface clear parse errors (line-oriented diagnostics)

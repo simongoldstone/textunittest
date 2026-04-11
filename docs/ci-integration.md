@@ -30,7 +30,7 @@ Replicate the same steps in your workflow. Example:
 - run: npm test
 ```
 
-If you install TextUnitTest from npm (once published) or build it in-repo:
+If you install TextUnitTest from npm (`npm install textunittest`) or build it in-repo:
 
 ```yaml
 - run: npm run build

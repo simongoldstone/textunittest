@@ -1,9 +1,3 @@
 # Models Module
 
-This directory is reserved for shared TypeScript models that describe the language and runtime structures.
-
-Initial focus areas include:
-
-- AST node definitions
-- Validation result models
-- Reporting contracts
+Shared TypeScript types for the parser AST (`Rule`, `TestCaseAst`, `TestSuiteAst`), format specs (`RequireFormatSpec`), and related definitions used by the engine and CLI.

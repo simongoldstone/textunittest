@@ -20,7 +20,13 @@ export interface SuiteRunResult {
 }
 
 function isLocationRule(r: Rule): boolean {
-  return r.kind === "between" || r.kind === "after" || r.kind === "before";
+  return (
+    r.kind === "between" ||
+    r.kind === "after" ||
+    r.kind === "before" ||
+    r.kind === "onLine" ||
+    r.kind === "betweenLines"
+  );
 }
 
 function isAssertionRule(r: Rule): boolean {
@@ -182,6 +188,10 @@ function locationFailureMessage(loc: Rule): string {
       return `After: could not find marker "${loc.marker}" in scope`;
     case "before":
       return `Before: could not find marker "${loc.marker}" in scope`;
+    case "onLine":
+      return `On Line: line ${loc.line} is outside the file or does not overlap the current scope`;
+    case "betweenLines":
+      return `Between Lines: lines ${loc.firstLine}–${loc.lastLine} are outside the file or do not overlap the current scope`;
     default:
       return "location rule failed";
   }

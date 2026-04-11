@@ -13,6 +13,10 @@ export type Rule =
   | { kind: "between"; start: string; end: string }
   | { kind: "after"; marker: string }
   | { kind: "before"; marker: string }
+  /** Narrow scope to a single 1-based line in the target file (intersects with prior location window). */
+  | { kind: "onLine"; line: number }
+  /** Narrow scope to an inclusive 1-based line range in the target file (intersects with prior location window). */
+  | { kind: "betweenLines"; firstLine: number; lastLine: number }
   | { kind: "require"; literal: string }
   | { kind: "reject"; literal: string }
   | { kind: "regex"; pattern: string; flags: string }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+- **`On Line:`** and **`Between Lines:`** — narrow the assertion scope to one line or an inclusive line range (1-based, full-file line numbers); combine with **`Require Format:`** (and other assertions) to require a valid email, date, mask match, etc. on a specific line or range.
+
 ## 0.2.0
 
 - Documentation aligned with the implemented parser, engine, CLI, and matching extensions.

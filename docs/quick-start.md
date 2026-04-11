@@ -58,6 +58,8 @@ npx textunittest validate examples/basic
 npx textunittest validate examples
 ```
 
+The `examples/contracts/` folder contains a long **CRM-style service agreement** (`crm-generated-service-agreement.txt`) and a **large suite** (`contract-validation-suite.md`) with dozens of tests—useful as a reference for real-world validation. Narrative notes live in `examples/contracts/README.txt` (not `.md`, so they are not picked up as suites when scanning `examples/`).
+
 ## 6. String literals
 
 Rules such as `Require:` accept `"`, `'`, or `` ` `` delimiters. Use **doubled** delimiters (`""`, `''`, doubled backticks) or **backslash** escapes (`\"`, `\'`, `` \` ``). See [Language specification — String literals](./language-specification.md#string-literals).
@@ -65,3 +67,8 @@ Rules such as `Require:` accept `"`, `'`, or `` ` `` delimiters. Use **doubled**
 ## 7. Automation
 
 Use the same command in GitHub Actions, Azure DevOps, or any CI that provides Node 20+. See [CI integration](./ci-integration.md).
+Install **`textunittest`** from npm with `npm install textunittest` or run **`npx textunittest validate …`** without a global install.
+
+## 8. Line-scoped checks (optional)
+
+To require a structured format on a specific file line or line range, use **`On Line:`** or **`Between Lines:`** with **`Require Format:`** (see [Language specification](./language-specification.md) and [Matching extensions](./matching-extensions-spec.md)).

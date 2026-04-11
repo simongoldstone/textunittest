@@ -69,6 +69,19 @@ describe("TextUnitTest integration", () => {
     expect(result.results.every((r) => r.passed && !r.error)).toBe(true);
   });
 
+  it("parses and passes examples/contracts/contract-validation-suite.md", async () => {
+    const suitePath = join(repoRoot, "examples", "contracts", "contract-validation-suite.md");
+    const source = await readFile(suitePath, "utf8");
+    const parsed = parseSuiteMarkdown(source, "contract-validation-suite.md");
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) {
+      return;
+    }
+    const result = await runSuite(suitePath, parsed.suite);
+    expect(result.results.every((r) => r.passed && !r.error)).toBe(true);
+    expect(result.results.length).toBeGreaterThanOrEqual(40);
+  });
+
   it("reports Require failure when text is missing", async () => {
     const md = `# T\n\n## One\n\nTarget: sample-output.txt\nRequire: "NOT IN FILE"\n`;
     const parsed = parseSuiteMarkdown(md);

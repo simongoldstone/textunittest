@@ -2,9 +2,11 @@
 
 Human-readable **Markdown** suites for validating **plain text** output—readable rules for reviewers, runnable checks in CI.
 
+**Latest release:** 0.3.0 ([changelog](./CHANGELOG.md)).
+
 ## Features
 
-- **DSL**: `#` suite title, `##` test names, `Key: value` rules (`Target:`, `Require:`, `Between:`, `Regex:`, `Length:`, …).
+- **DSL**: `#` suite title, `##` test names, `Key: value` rules (`Target:`, `Require:`, `Between:`, `On Line:`, `Between Lines:`, `Regex:`, `Length:`, …).
 - **String literals** with `"`, `'`, or `` ` `` plus escaping (doubling or `\`).
 - **Matching extensions**: wildcards (`Require Pattern:`), fuzzy text (`Fuzzy Require:` + `Tolerance:`), structured formats (`Require Format:`) without writing regex by hand.
 - **CLI**: `validate` on `.md` suite files or directories; optional **HTML** report.
@@ -36,14 +38,14 @@ npx textunittest validate examples --html report.html
 
 Exit code **0** when every test passes, **1** on failure or error—suitable for CI.
 
-## Using the published package (after npm publish)
+## Using the published package
 
 ```bash
-npm install -g textunittest
-textunittest validate ./tests
+npm install textunittest
+npx textunittest validate ./tests
 ```
 
-Until published, use **`npx textunittest`** from a built clone or **`node dist/cli/index.js validate …`** after `npm run build`.
+From a **clone** without installing globally, use **`npx textunittest`** after `npm run build`, or **`node dist/cli/index.js validate …`**.
 
 ## Documentation
 
@@ -62,7 +64,7 @@ Until published, use **`npx textunittest`** from a built clone or **`node dist/c
 
 ```text
 docs/       Product and language documentation
-examples/   Sample suites and target text files
+examples/   Sample suites and target text files (see examples/contracts/README.txt for the CRM contract demo)
 src/        Parser, engine, matching, CLI, reporting
 tests/      Unit and integration tests
 ```

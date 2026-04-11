@@ -28,7 +28,9 @@ const KEY_ORDER: readonly string[] = [
   "Reject Regex:",
   "Starts With:",
   "Ends With:",
+  "Between Lines:",
   "Between:",
+  "On Line:",
   "Length:",
   "Count:",
   "Target:",
@@ -146,6 +148,36 @@ function parseRuleLine(line: string): Rule | null {
   throw new Error(`unrecognized rule (expected one of: ${KEY_ORDER.join(", ")})`);
 }
 
+function parseOnLine(value: string): Rule {
+  const t = value.trim();
+  const m = /^(\d+)$/.exec(t);
+  if (!m) {
+    throw new Error('On Line: expected a single line number (e.g. 12)');
+  }
+  const n = Number(m[1]);
+  if (n < 1) {
+    throw new Error("On Line: line numbers must be at least 1");
+  }
+  return { kind: "onLine", line: n };
+}
+
+function parseBetweenLines(value: string): Rule {
+  const t = value.trim();
+  const m = /^(\d+)\s+and\s+(\d+)$/i.exec(t);
+  if (!m) {
+    throw new Error('Between Lines: expected "N and M" (e.g. 15 and 22)');
+  }
+  const a = Number(m[1]);
+  const b = Number(m[2]);
+  if (a < 1 || b < 1) {
+    throw new Error("Between Lines: line numbers must be at least 1");
+  }
+  if (a > b) {
+    throw new Error("Between Lines: first line must be less than or equal to last line");
+  }
+  return { kind: "betweenLines", firstLine: a, lastLine: b };
+}
+
 function parseRuleValue(key: string, value: string): Rule {
   switch (key) {
     case "Target:":
@@ -172,6 +204,10 @@ function parseRuleValue(key: string, value: string): Rule {
       return { kind: "endsWith", literal: parseOneDelimitedLiteral(value, "Ends With") };
     case "Between:":
       return parseBetween(value);
+    case "Between Lines:":
+      return parseBetweenLines(value);
+    case "On Line:":
+      return parseOnLine(value);
     case "Count:":
       return parseCount(value);
     case "Length:":

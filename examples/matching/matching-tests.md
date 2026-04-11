@@ -30,3 +30,21 @@ Require Pattern: "Ref * End"
 
 Target: matching-sample.txt
 Require Format: Mask(INV-9999-AAA)
+
+## Email on a specific line
+
+Target: matching-sample.txt
+On Line: 3
+Require Format: Email
+
+## Date on a specific line
+
+Target: matching-sample.txt
+On Line: 4
+Require Format: Date(dd-mm-yyyy)
+
+## Mask within a line range
+
+Target: matching-sample.txt
+Between Lines: 6 and 6
+Require Format: Mask(INV-9999-AAA)

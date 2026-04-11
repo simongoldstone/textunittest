@@ -12,4 +12,4 @@
 
 ## Status
 
-The parser, execution engine, CLI, and reporting described in these docs are **implemented**. The language may continue to evolve in minor ways; see the roadmap for planned extensions.
+**Release 0.3.0** — The parser, execution engine, CLI, and reporting described in these docs are **implemented** and published on npm as `textunittest`. The language may continue to evolve in minor ways; see the [roadmap](./roadmap.md) for planned extensions.

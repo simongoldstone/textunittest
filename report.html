@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>TextUnitTest Report</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 1.5rem; color: #1a1a1a; }
+    table { border-collapse: collapse; width: 100%; max-width: 960px; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; }
+    th.suite { background: #f0f0f0; font-size: 1.05rem; }
+    tr.pass td:first-child { color: #0a6e0a; font-weight: 600; }
+    tr.fail td:first-child, tr.error td:first-child { color: #b00020; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>TextUnitTest Report</h1>
+  <table>
+    <thead>
+      <tr><th>Status</th><th>Test</th><th>Details</th></tr>
+    </thead>
+    <tbody>
+      <tr><th colspan="3" class="suite">Basic Validation Tests</th></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure version exists</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure no errors exist</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure version is in the header section</td><td></td></tr>
+      <tr><th colspan="3" class="suite">Invoice Validation Suite</th></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure version number exists</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure invoice id matches expected format</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure there are exactly two line items</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure placeholder text is absent</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure invoice file size is within bounds</td><td></td></tr>
+      <tr><th colspan="3" class="suite">Matching extensions demo</th></tr>
+      <tr class="pass"><td>Pass</td><td>Wildcard invoice line</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Fuzzy status line</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Email present</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Valid calendar date</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Ref wildcard</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Custom invoice id mask</td><td></td></tr>
+      <tr><th colspan="3" class="suite">Quote escaping examples</th></tr>
+      <tr class="pass"><td>Pass</td><td>Doubling double quotes</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Single quotes with apostrophe doubling</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Backticks in content (single-quoted literal avoids nested-backtick parsing)</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Backslash escapes in a double-quoted string</td><td></td></tr>
+      <tr><th colspan="3" class="suite">Regex Validation Tests</th></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure build id is numeric</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure status is not fail</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure timestamp appears once</td><td></td></tr>
+      <tr><th colspan="3" class="suite">Report Validation Tests</th></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure summary section contains revenue</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure net line exists once</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure report starts with title</td><td></td></tr>
+      <tr class="pass"><td>Pass</td><td>Ensure report ends with footer</td><td></td></tr>
+    </tbody>
+  </table>
+</body>
+</html>

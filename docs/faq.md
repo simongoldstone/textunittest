@@ -2,7 +2,7 @@
 
 ## Is TextUnitTest implemented yet?
 
-Core pieces are implemented: parsing, execution, CLI validation, and reporting. The language and tooling will continue to evolve.
+Yes. Parsing, execution, CLI validation, and reporting are implemented; the package is published on npm as **`textunittest`** (see [CHANGELOG](../CHANGELOG.md) for versions). The language and tooling will continue to evolve in minor ways.
 
 ## Who is TextUnitTest for?
 
