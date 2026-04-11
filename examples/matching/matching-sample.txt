@@ -1,0 +1,6 @@
+Invoice January Total
+Operation completed succesfully
+Contact: john@example.com
+Ship date: 25-12-2026
+Ref XYZ End
+INV-1234-ABC

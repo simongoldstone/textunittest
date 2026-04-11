@@ -2,7 +2,7 @@
 
 ## Is TextUnitTest implemented yet?
 
-Not yet. The repository is currently in the specification and scaffolding phase.
+Core pieces are implemented: parsing, execution, CLI validation, and reporting. The language and tooling will continue to evolve.
 
 ## Who is TextUnitTest for?
 
@@ -19,3 +19,11 @@ Markdown keeps suites readable in editors, pull requests, documentation portals,
 ## Will TextUnitTest support CI systems?
 
 Yes. CI friendliness is a core product goal, and the planned CLI is intended to work naturally in systems such as GitHub Actions and Azure DevOps.
+
+## Does `Length:` count characters or bytes?
+
+`Length:` uses **UTF-8 bytes**, which usually matches the file’s size on disk for a UTF-8 text file. Character counts can differ when the text includes emoji or other multi-byte Unicode sequences.
+
+## How do I put quotes inside a string literal?
+
+Use **three delimiter styles** (`"`, `'`, or `` ` ``) so you can pick one that avoids clashing with the text, or **escape** using **doubled delimiters** (`""`, `''`, `` `` ``) or **backslashes** (`\"`, `\'`, `` \` ``). See the language specification section **String literals**.

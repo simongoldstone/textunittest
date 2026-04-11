@@ -43,6 +43,6 @@ textunittest validate tests/
 
 TextUnitTest is designed to be CI-friendly, so the same command can eventually run in local checks, GitHub Actions, Azure DevOps, or other automation systems.
 
-## Current Limitation
+## String literals
 
-This repository is currently in the specification phase. The CLI, parser, and engine are scaffolded for future implementation but are not functional yet.
+Rules such as `Require:` accept text in double quotes, single quotes, or backticks. To include the delimiter character inside the string, double it (`""`, `''`, or doubled backticks) or use `\"`, `\'`, `` \` ``. See the [language specification](./language-specification.md) section **String literals**.

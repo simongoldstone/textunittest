@@ -21,3 +21,8 @@ Count: 2 of "Line Item:"
 
 Target: invoice.txt
 Reject: "TBD"
+
+## Ensure invoice file size is within bounds
+
+Target: invoice.txt
+Length: between 100 and 100000

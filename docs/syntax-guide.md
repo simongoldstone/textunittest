@@ -53,14 +53,27 @@ Each `##` heading starts a new test case.
 
 ## Quoting Rules
 
-Literal text should be wrapped in double quotes.
+Literal text for rules such as `Require:`, `Reject:`, `Between:`, and similar must be written as a **string literal**. Choose one delimiter and close with the same character:
+
+- Double quotes: `"..."`  
+- Single quotes: `'...'`  
+- Backticks: `` `...` ``
+
+**Including delimiter characters inside the string**
+
+- **Double the delimiter** (recommended for readability): `He said ""wow""` → `He said "wow"`. Inside single quotes, `don''t` → `don't`. Inside backticks, two backticks in a row emit one backtick.
+- **Or use a backslash**: `\"`, `\'`, `` \` ``, and `\\` for a literal backslash.
 
 Examples:
 
 ```md
 Require: "Version:"
-Reject: "ERROR"
+Reject: 'ERROR'
 Starts With: "Quarterly Report"
+Require: 'Status: "OK"'
+Require: "say ""hello"""
+Require: 'it''s fine'
+Require: `code: ``token``
 ```
 
 Regular expressions should use slash delimiters.
@@ -95,6 +108,25 @@ Examples:
 ```md
 Count: 2 of "Line Item:"
 Count: 1 matches /Started:\s+\d{4}-\d{2}-\d{2}T/
+```
+
+## Wildcards, fuzzy, and formats (no regex required)
+
+- `Require Pattern: "Invoice * Total"` — `*` and `?` on a **single line** (see [matching extensions](./matching-extensions-spec.md)).
+- `Fuzzy Require: "long phrase here"` with optional `Tolerance: 90%` — approximate match **per line**.
+- `Require Format: Date(dd-mm-yyyy)` — structured checks (email, UUID, masks, etc.).
+
+## File length
+
+Use `Length:` to assert the **UTF-8 byte size** of the whole target file (not the narrowed scope). This is useful for catching truncated or bloated exports.
+
+Examples:
+
+```md
+Length: at least 1000
+Length: at most 100000
+Length: exactly 4096
+Length: between 500 and 2000
 ```
 
 ## Readability Tips

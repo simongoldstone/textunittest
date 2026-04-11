@@ -10,7 +10,8 @@ This directory contains the Phase 1 documentation set for the TextUnitTest proje
 - [CI integration](./ci-integration.md)
 - [Roadmap](./roadmap.md)
 - [FAQ](./faq.md)
+- [Matching extensions (wildcards, fuzzy, formats)](./matching-extensions-spec.md)
 
 ## Current Status
 
-TextUnitTest is in early development and this documentation describes the intended v1 language design rather than a completed implementation.
+The core language, CLI, and matching extensions described in the specifications are implemented; documentation continues to evolve with the product.
