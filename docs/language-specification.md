@@ -349,6 +349,109 @@ Example:
 Fail: Version number missing from header
 ```
 
+## External Parameters and Template Substitution
+
+TextUnitTest supports **external parameters** — arbitrary key/value variables injected at run time that can be referenced anywhere in a suite file using the `{{variableName}}` notation.
+
+### Variable Substitution
+
+Any rule value may contain one or more `{{variableName}}` placeholders. Before the rule is parsed, each placeholder is replaced with the corresponding parameter value. If a variable is not defined, the placeholder is left unchanged (lenient substitution).
+
+This allows suites to be written once and driven with different values at runtime. For example:
+
+```md
+Between Lines: {{startLine}} and {{endLine}}
+Require: "Build: {{version}}"
+Target: {{outputDir}}/report.txt
+```
+
+### Passing Parameters from the CLI
+
+Use the `--var name=value` flag (repeatable) when running the `validate` command:
+
+```sh
+textunittest validate suites/ \
+  --var version=4.7.1 \
+  --var env=staging \
+  --var startLine=15 \
+  --var endLine=22
+```
+
+A bare `--var name` (without `=`) sets the variable to `"true"`.
+
+### Passing Parameters via the API
+
+Pass a `params` object as the third argument to both `parseSuiteMarkdown` and `runSuite`:
+
+```ts
+import { parseSuiteMarkdown, runSuite } from "textunittest";
+
+const params = { version: "4.7.1", env: "staging" };
+const parsed = parseSuiteMarkdown(source, "suite.md", params);
+if (parsed.ok) {
+  const results = await runSuite("suite.md", parsed.suite, params);
+}
+```
+
+### `If:` — Conditional Test Execution
+
+The `If:` rule lets you skip a test entirely based on the value of an external parameter. The condition is written inside `{{ }}`.
+
+**Supported forms:**
+
+| Syntax | Meaning |
+|--------|---------|
+| `If: {{varName=value}}` | Run only when `varName` equals `value` (exact match) |
+| `If: {{varName!=value}}` | Run only when `varName` does **not** equal `value` |
+| `If: {{varName}}` | Run only when `varName` is set and is not empty, `"false"`, or `"0"` |
+
+A test with a false `If:` condition is **skipped** — it is counted as passed and does not contribute to the failure exit code.
+
+Multiple `If:` rules may appear in a test; all conditions must be true for the test to run.
+
+Example — only validate email format when the `checkEmail` flag is set:
+
+```md
+## Check contact email (optional)
+
+Target: report.txt
+If: {{checkEmail=yes}}
+Require Format: Email
+```
+
+Example — skip in CI environments:
+
+```md
+## Slow audit (skip on CI)
+
+Target: report.txt
+If: {{env!=ci}}
+Require Pattern: "Deployment region: *"
+```
+
+Example — enable extended checks via a feature flag:
+
+```md
+## Extended compliance checks
+
+Target: output.txt
+If: {{runExtended}}
+Require: "Compliance: PASS"
+```
+
+### `Fail:`
+
+Provides a custom failure message for the test.
+
+- This message should explain the business meaning of the failure.
+- It does not change evaluation behavior.
+
+Example:
+
+```md
+Fail: Version number missing from header
+```
+
 ## Scope Composition
 
 When a test contains location rules, TextUnitTest should narrow the search scope before evaluating content assertions.
@@ -383,9 +486,9 @@ Fail: Version number missing from header
 
 The reference implementation in this repository includes:
 
-- **Parser** — Line-oriented Markdown parsing; strict rule keys; string literals as documented under **String literals**; full-line **`<!-- ... -->`** HTML comments ignored under tests.
-- **Engine** — Scope rules applied in order; assertions and `Length:` as described under **Scope Composition**; failure messages include a **Line:** hint (1-based line in the target file at the start of the narrowed scope). Supports **`Require Any Of:`** / **`Reject Any Of:`**, extended **`Count:`** bounds, **`Line Must Equal:`** / **`First Line Must Equal:`** / **`Last Line Must Equal:`**, **`Reject Format:`**, and all rules listed in **Supported Rules**.
-- **CLI** — Human-readable console output and optional HTML report; exit codes 0 / 1 for automation.
+- **Parser** — Line-oriented Markdown parsing; strict rule keys; string literals as documented under **String literals**; full-line **`<!-- ... -->`** HTML comments ignored under tests. Accepts an optional `params` map for `{{variable}}` interpolation and `If:` condition parsing.
+- **Engine** — Scope rules applied in order; assertions and `Length:` as described under **Scope Composition**; failure messages include a **Line:** hint (1-based line in the target file at the start of the narrowed scope). Supports **`Require Any Of:`** / **`Reject Any Of:`**, extended **`Count:`** bounds, **`Line Must Equal:`** / **`First Line Must Equal:`** / **`Last Line Must Equal:`**, **`Reject Format:`**, **`If:`** conditional execution, and all rules listed in **Supported Rules**.
+- **CLI** — Human-readable console output and optional HTML report; exit codes 0 / 1 for automation; `--var name=value` (repeatable) for external parameters.
 - **Path resolution** — `Target:` paths are resolved relative to the suite file; the runtime is **Node.js** with UTF-8 file reads.
 
 Not yet standardized or out of scope for the current docs:

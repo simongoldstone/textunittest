@@ -151,6 +151,72 @@ Length: exactly 4096
 Length: between 500 and 2000
 ```
 
+## External Parameters and Template Variables
+
+TextUnitTest supports **external parameters** — key/value variables injected at run time using `{{variableName}}` placeholders anywhere in rule values.
+
+### Variable substitution
+
+Place `{{varName}}` in any rule value. The placeholder is replaced with the variable value before the rule is parsed. Unknown variables are left unchanged.
+
+```md
+Require: "Build: {{version}}"
+Between Lines: {{startLine}} and {{endLine}}
+Target: {{outputDir}}/report.txt
+```
+
+Pass variables on the command line with `--var` (repeatable):
+
+```sh
+textunittest validate suites/ --var version=4.7.1 --var startLine=15 --var endLine=22
+```
+
+Or via the API:
+
+```ts
+const params = { version: "4.7.1", startLine: "15", endLine: "22" };
+const parsed = parseSuiteMarkdown(source, "suite.md", params);
+const results = await runSuite("suite.md", parsed.suite, params);
+```
+
+### Conditional tests with `If:`
+
+The `If:` rule skips a test when its condition is false. The condition is written inside `{{ }}`.
+
+| Form | Meaning |
+|------|---------|
+| `If: {{var=value}}` | Run only when `var` equals `value` |
+| `If: {{var!=value}}` | Run only when `var` does **not** equal `value` |
+| `If: {{var}}` | Run only when `var` is set and non-empty |
+
+A skipped test counts as **passed** — it does not cause the suite to fail.
+
+Examples:
+
+```md
+## Check email (optional)
+
+Target: report.txt
+If: {{checkEmail=yes}}
+Require Format: Email
+```
+
+```md
+## Skip slow checks on CI
+
+Target: report.txt
+If: {{env!=ci}}
+Require Pattern: "Deployment region: *"
+```
+
+```md
+## Extended checks (opt-in)
+
+Target: output.txt
+If: {{runExtended}}
+Require: "Compliance: PASS"
+```
+
 ## Trailing newlines
 
 Text files often end with a newline after the last line. **`Ends With:`** ignores trailing `\r` / `\n` on the scope so you can match the last line of text without encoding the final newline in the literal.
