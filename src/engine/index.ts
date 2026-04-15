@@ -39,13 +39,13 @@ export function evaluateIfCondition(condition: string, params: Record<string, st
   const neqMatch = /^([^!=]+)!=(.*)$/.exec(condition);
   if (neqMatch) {
     const varName = neqMatch[1]!.trim();
-    const expected = neqMatch[2]!;
+    const expected = neqMatch[2]!.trim();
     return (params[varName] ?? "") !== expected;
   }
   const eqMatch = /^([^!=]+)=(.*)$/.exec(condition);
   if (eqMatch) {
     const varName = eqMatch[1]!.trim();
-    const expected = eqMatch[2]!;
+    const expected = eqMatch[2]!.trim();
     return (params[varName] ?? "") === expected;
   }
   // Plain variable name — truthy check

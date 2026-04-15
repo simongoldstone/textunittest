@@ -95,7 +95,7 @@ program
       const list = paths.length > 0 ? paths : ["."];
       const suites = await validatePaths(list, cwd, params);
       const anyFailed = suites.some((s) =>
-        s.results.some((r) => r.error !== undefined || (!r.passed && !r.skipped)),
+        s.results.some((r) => r.error !== undefined || !r.passed),
       );
       process.stdout.write(formatConsoleReport(suites));
       if (opts.html) {
