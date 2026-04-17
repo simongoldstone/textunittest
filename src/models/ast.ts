@@ -55,7 +55,13 @@ export type Rule =
   /** First line of the current scope must equal the literal after trimming. */
   | { kind: "firstLineMustEqual"; literal: string }
   /** Last line of the current scope must equal the literal after trimming. */
-  | { kind: "lastLineMustEqual"; literal: string };
+  | { kind: "lastLineMustEqual"; literal: string }
+  /**
+   * Conditional execution: skip this test unless the expression evaluates to true.
+   * Condition string is the raw expression inside `{{...}}` from the source, e.g.
+   * `"switch=yes"`, `"switch!=yes"`, or `"switch"` (truthy check).
+   */
+  | { kind: "if"; condition: string };
 
 export interface TestCaseAst {
   /** Level-two heading text. */

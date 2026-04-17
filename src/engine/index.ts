@@ -19,11 +19,54 @@ export interface TestRunResult {
   passed: boolean;
   failures: string[];
   error?: string;
+  /** True when the test was skipped due to a failing `If:` condition. */
+  skipped?: boolean;
 }
 
 export interface SuiteRunResult {
   suiteTitle: string;
   results: TestRunResult[];
+}
+
+/**
+ * Evaluate a single `If:` condition string against the provided params.
+ * Supports:
+ *   - `varName=value`  → true if params[varName] === value
+ *   - `varName!=value` → true if params[varName] !== value
+ *   - `varName`        → true if params[varName] is set and non-empty
+ */
+export function evaluateIfCondition(condition: string, params: Record<string, string>): boolean {
+  const neqMatch = /^([^!=]+)!=(.*)$/.exec(condition);
+  if (neqMatch) {
+    const varName = neqMatch[1]!.trim();
+    const expected = neqMatch[2]!.trim();
+    return (params[varName] ?? "") !== expected;
+  }
+  const eqMatch = /^([^!=]+)=(.*)$/.exec(condition);
+  if (eqMatch) {
+    const varName = eqMatch[1]!.trim();
+    const expected = eqMatch[2]!.trim();
+    return (params[varName] ?? "") === expected;
+  }
+  // Plain variable name — truthy check
+  const varName = condition.trim();
+  const val = params[varName] ?? "";
+  return val !== "" && val.toLowerCase() !== "false" && val !== "0";
+}
+
+/**
+ * Evaluate all `If:` rules in a test case.
+ * Returns `true` if the test should run, `false` if it should be skipped.
+ */
+function shouldRunTest(rules: Rule[], params: Record<string, string>): boolean {
+  for (const r of rules) {
+    if (r.kind === "if") {
+      if (!evaluateIfCondition(r.condition, params)) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 function isLocationRule(r: Rule): boolean {
@@ -121,16 +164,22 @@ function withFailHint(failHint: string | undefined, detail: string): string {
   return detail;
 }
 
-export async function runSuite(suiteFilePath: string, suite: TestSuiteAst): Promise<SuiteRunResult> {
+export async function runSuite(suiteFilePath: string, suite: TestSuiteAst, params?: Record<string, string>): Promise<SuiteRunResult> {
   const baseDir = dirname(suiteFilePath);
+  const resolvedParams = params ?? {};
   const results: TestRunResult[] = [];
   for (const test of suite.tests) {
-    results.push(await runTestCase(baseDir, test));
+    results.push(await runTestCase(baseDir, test, resolvedParams));
   }
   return { suiteTitle: suite.title, results };
 }
 
-async function runTestCase(baseDir: string, test: TestCaseAst): Promise<TestRunResult> {
+async function runTestCase(baseDir: string, test: TestCaseAst, params: Record<string, string>): Promise<TestRunResult> {
+  // Evaluate If: conditions before running the test.
+  if (!shouldRunTest(test.rules, params)) {
+    return { testName: test.name, passed: true, failures: [], skipped: true };
+  }
+
   const targetRule = test.rules.find((r) => r.kind === "target");
   if (!targetRule || targetRule.kind !== "target") {
     return { testName: test.name, passed: false, failures: [], error: "missing Target:" };
@@ -171,7 +220,7 @@ async function runTestCase(baseDir: string, test: TestCaseAst): Promise<TestRunR
   const failures: string[] = [];
   for (let ri = 0; ri < test.rules.length; ri++) {
     const rule = test.rules[ri]!;
-    if (rule.kind === "target" || rule.kind === "fail" || rule.kind === "case" || rule.kind === "tolerance") {
+    if (rule.kind === "target" || rule.kind === "fail" || rule.kind === "case" || rule.kind === "tolerance" || rule.kind === "if") {
       continue;
     }
     if (isLocationRule(rule)) {

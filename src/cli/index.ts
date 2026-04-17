@@ -26,7 +26,7 @@ async function collectMarkdownFiles(root: string): Promise<string[]> {
   return results.sort();
 }
 
-async function validatePaths(paths: string[], cwd: string): Promise<SuiteRunResult[]> {
+async function validatePaths(paths: string[], cwd: string, params: Record<string, string>): Promise<SuiteRunResult[]> {
   const resolved = paths.map((p) => (isAbsolute(p) ? p : resolve(cwd, p)));
   const allSuites: SuiteRunResult[] = [];
 
@@ -47,14 +47,14 @@ async function validatePaths(paths: string[], cwd: string): Promise<SuiteRunResu
 
     for (const file of files) {
       const source = await readFile(file, "utf8");
-      const parsed = parseSuiteMarkdown(source, basename(file));
+      const parsed = parseSuiteMarkdown(source, basename(file), params);
       if (!parsed.ok) {
         for (const err of parsed.errors) {
           console.error(err);
         }
         throw new Error(`parse failed: ${file}`);
       }
-      const run = await runSuite(file, parsed.suite);
+      const run = await runSuite(file, parsed.suite, params);
       allSuites.push(run);
     }
   }
@@ -72,11 +72,28 @@ program
   .description("Run Markdown validation suites (.md) against target text files")
   .argument("[paths...]", "Suite files or directories to scan for .md suites", ".")
   .option("--html <file>", "Write an HTML report to the given path")
-  .action(async (paths: string[], opts: { html?: string }) => {
+  .option(
+    "--var <name=value>",
+    "Define an external variable for template substitution and If: conditions (repeatable)",
+    (pair: string, prev: string[]) => [...prev, pair],
+    [] as string[],
+  )
+  .action(async (paths: string[], opts: { html?: string; var: string[] }) => {
     const cwd = process.cwd();
+    // Parse --var name=value pairs into a Record
+    const params: Record<string, string> = {};
+    for (const pair of opts.var) {
+      const eqIdx = pair.indexOf("=");
+      if (eqIdx === -1) {
+        // Bare name without value — treat as "true"
+        params[pair] = "true";
+      } else {
+        params[pair.slice(0, eqIdx)] = pair.slice(eqIdx + 1);
+      }
+    }
     try {
       const list = paths.length > 0 ? paths : ["."];
-      const suites = await validatePaths(list, cwd);
+      const suites = await validatePaths(list, cwd, params);
       const anyFailed = suites.some((s) =>
         s.results.some((r) => r.error !== undefined || !r.passed),
       );

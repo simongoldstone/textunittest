@@ -48,11 +48,13 @@ const KEY_ORDER: readonly string[] = [
   "Fail:",
   "Case:",
   "Tolerance:",
+  "If:",
 ];
 
-export function parseSuiteMarkdown(source: string, filename?: string): ParseResult {
+export function parseSuiteMarkdown(source: string, filename?: string, params?: Record<string, string>): ParseResult {
   const errors: string[] = [];
   const prefix = filename ? `${filename}: ` : "";
+  const resolvedParams = params ?? {};
 
   const lines = source.split(/\r?\n/);
   let suiteTitle = "";
@@ -102,7 +104,7 @@ export function parseSuiteMarkdown(source: string, filename?: string): ParseResu
     }
 
     try {
-      const rule = parseRuleLine(trimmed);
+      const rule = parseRuleLine(trimmed, resolvedParams);
       if (rule !== null) {
         currentTest.rules.push(rule);
       }
@@ -148,10 +150,23 @@ function headingLevel(line: string): number {
   return 0;
 }
 
-function parseRuleLine(line: string): Rule | null {
+/**
+ * Replace `{{varName}}` placeholders in the given text with values from params.
+ * Unknown variable names are left as-is (lenient substitution).
+ */
+function interpolateParams(text: string, params: Record<string, string>): string {
+  return text.replace(/\{\{([^{}]+)\}\}/g, (_match, name: string) => {
+    const key = name.trim();
+    return Object.prototype.hasOwnProperty.call(params, key) ? params[key]! : _match;
+  });
+}
+
+function parseRuleLine(line: string, params: Record<string, string>): Rule | null {
   for (const key of KEY_ORDER) {
     if (line.startsWith(key)) {
-      const value = line.slice(key.length).trim();
+      const rawValue = line.slice(key.length).trim();
+      // If: values are parsed as conditions — do NOT interpolate so the {{...}} wrapper is preserved.
+      const value = key === "If:" ? rawValue : interpolateParams(rawValue, params);
       return parseRuleValue(key, value);
     }
   }
@@ -247,6 +262,8 @@ function parseRuleValue(key: string, value: string): Rule {
       return { kind: "lastLineMustEqual", literal: parseOneDelimitedLiteral(value, "Last Line Must Equal") };
     case "Tolerance:":
       return parseTolerance(value);
+    case "If:":
+      return parseIfRule(value);
     default:
       throw new Error(`internal: unknown rule key ${key}`);
   }
@@ -259,6 +276,22 @@ function parseTolerance(value: string): Rule {
     throw new Error(`Tolerance: expected ${FUZZY_MIN_TOLERANCE}%–${FUZZY_MAX_TOLERANCE}% (e.g. 90 or 90%)`);
   }
   return { kind: "tolerance", percent: n };
+}
+
+function parseIfRule(value: string): Rule {
+  const t = value.trim();
+  // Expect the value to be wrapped in {{ ... }}
+  const m = /^\{\{([\s\S]+)\}\}$/.exec(t);
+  if (!m) {
+    throw new Error(
+      'If: expected a condition wrapped in {{ }}, e.g. If: {{switch=yes}} or If: {{featureEnabled}}',
+    );
+  }
+  const condition = m[1]!.trim();
+  if (condition === "") {
+    throw new Error('If: condition inside {{ }} must not be empty');
+  }
+  return { kind: "if", condition };
 }
 
 function parseFormatSpec(value: string, label: string): RequireFormatSpec {

@@ -1,0 +1,7 @@
+Report generated for environment: staging
+Build: 4.7.1
+Status: OK
+Operator: alice
+Contact: alice@example.com
+Lines checked: 15 and 22
+Deployment region: eu-west
